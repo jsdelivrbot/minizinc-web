@@ -1,0 +1,8 @@
+{
+	"name": "Wolverine Scheduler",
+	"description": "Fighting subjective ratemyprofessor reviews with objective statistics.",
+	"repository": "https://github.com/harryt04/wolverine-scheduler.git",
+	"logo": "https://cdn.rawgit.com/heroku/node-js-getting-started/master/public/node.svg",
+	"keywords": ["node", "express", "heroku"],
+	"image": "heroku/nodejs"
+}

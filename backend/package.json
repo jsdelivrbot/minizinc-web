@@ -5,10 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "concurrently --kill-others \"cd backend && nodemon server.js\" \"cd frontend && npm run serve\"",
-    "install:frontend": "cd frontend && npm install",
-    "install:backend": "cd backend && npm install",
-    "postinstall": "run-s install:backend install:frontend"
+    "start": "nodemon server.js"
   },
   "repository": {
     "type": "git",
@@ -27,8 +24,9 @@
   },
   "homepage": "https://github.com/harryt04/minizinc-web#readme",
   "dependencies": {
-    "concurrently": "^4.0.1",
+    "express": "^4.16.3",
+    "helmet": "^3.13.0",
     "nodemon": "^1.18.4",
-    "npm-run-all": "^4.1.3"
+    "path": "^0.12.7"
   }
 }
