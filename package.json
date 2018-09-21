@@ -1,0 +1,30 @@
+{
+  "name": "minizinc-web",
+  "version": "0.0.1",
+  "description": "A web IDE replacement for minizinc desktop IDE.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harryt04/minizinc-web.git"
+  },
+  "keywords": [
+    "Mini",
+    "Zinc",
+    "Vue",
+    "Node"
+  ],
+  "author": "Harrison Thomas",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/harryt04/minizinc-web/issues"
+  },
+  "homepage": "https://github.com/harryt04/minizinc-web#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "helmet": "^3.13.0",
+    "path": "^0.12.7"
+  }
+}
