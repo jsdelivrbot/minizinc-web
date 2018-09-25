@@ -13,4 +13,6 @@ $ npm start
 
 # Deploying to Heroku
 
-The frontend heroku app is listening to the f-deployment branch of this repo. The backend heroku app is listening on b-deployment branch. Merge your feature changes to master when code reviews are complete, then merge to f-deployment and b-deployment respectively. You can access the *frontend* heroku app at [https://minizinc.herokuapp.com/](https://minizinc.herokuapp.com/).
+The frontend heroku app is listening to the master branch of this repo. When you are ready to deploy changes, merge those changes to master and heroku will automatically pick them up.
+
+You can access the heroku app at [https://minizinc.herokuapp.com/](https://minizinc.herokuapp.com/).

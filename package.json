@@ -1,34 +1,40 @@
 {
-  "name": "minizinc-web",
-  "version": "0.0.1",
-  "description": "A web IDE replacement for minizinc desktop IDE.",
-  "main": "server.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "concurrently --kill-others \"cd backend && nodemon server.js\" \"cd frontend && npm run serve\"",
-    "install:frontend": "cd frontend && npm install",
-    "install:backend": "cd backend && npm install",
-    "postinstall": "run-s install:backend install:frontend"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/harryt04/minizinc-web.git"
-  },
-  "keywords": [
-    "Mini",
-    "Zinc",
-    "Vue",
-    "Node"
-  ],
-  "author": "Harrison Thomas",
-  "license": "BSD-2-Clause",
-  "bugs": {
-    "url": "https://github.com/harryt04/minizinc-web/issues"
-  },
-  "homepage": "https://github.com/harryt04/minizinc-web#readme",
-  "dependencies": {
-    "concurrently": "^4.0.1",
-    "nodemon": "^1.18.4",
-    "npm-run-all": "^4.1.3"
-  }
+	"name": "minizinc-web",
+	"version": "0.0.1",
+	"description": "A web IDE replacement for minizinc desktop IDE.",
+	"main": "server.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "concurrently --kill-others \"nodemon server.js\" \"cd frontend && npm run serve\"",
+		"deploy": "run-s build-frontend deploy-frontend",
+		"build-frontend": "cd frontend && npm run build",
+		"deploy-frontend": "node server.js",
+		"run-frontend": "cd frontend && npm run serve",
+		"postinstall": "cd frontend && npm install"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/harryt04/minizinc-web.git"
+	},
+	"keywords": [
+		"Mini",
+		"Zinc",
+		"Vue",
+		"Node"
+	],
+	"author": "Harrison Thomas",
+	"license": "BSD-2-Clause",
+	"bugs": {
+		"url": "https://github.com/harryt04/minizinc-web/issues"
+	},
+	"homepage": "https://github.com/harryt04/minizinc-web#readme",
+	"dependencies": {
+		"concurrently": "^4.0.1",
+		"express": "^4.16.3",
+		"helmet": "^3.13.0",
+		"nodemon": "^1.18.4",
+		"npm-run-all": "^4.1.3",
+		"path": "^0.12.7",
+		"serve-static": "^1.13.2"
+	}
 }

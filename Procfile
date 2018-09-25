@@ -1,1 +1,1 @@
-web: cd frontend && npm run start-heroku
+web: npm run deploy

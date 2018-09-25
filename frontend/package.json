@@ -6,17 +6,12 @@
     "serve": "vue-cli-service serve",
     "start": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "start-heroku": "npm run build && node heroku.js"
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "@vue/cli-plugin-babel": "^3.0.3",
     "@vue/cli-plugin-eslint": "^3.0.3",
     "@vue/cli-service": "^3.0.3",
-    "express": "^4.16.3",
-    "helmet": "^3.13.0",
-    "path": "^0.12.7",
-    "serve-static": "^1.13.2",
     "vue": "^2.5.17",
     "vue-template-compiler": "^2.5.17"
   },
