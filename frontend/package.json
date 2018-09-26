@@ -19,9 +19,7 @@
     "vuetify": "^1.2.0",
     "vue-cli-plugin-vuetify": "^0.2.0"
   },
-  "devDependencies": {
-
-  },
+  "devDependencies": {},
   "eslintConfig": {
     "root": true,
     "env": {
