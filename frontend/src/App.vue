@@ -19,23 +19,20 @@ body {
 
 #editor {
 	margin: 0;
-	/* margin-top: 10px; */
-	/* position: absolute;
-	top: 0;
-	bottom: 0;*/
 	left: 0;
 	height: 100%;
 	width: 100%;
-	/* right: 0; */
 	font-size: 20px;
 }
+
 .remove-margin {
 	margin: 0 !important;
 	padding: 0 !important;
 }
-.fill-space {
-	height: 100%;
-	width: 100%;
+
+.left-align {
+	font-size: 20px;
+	text-align: left;
 }
 </style>
 
@@ -63,17 +60,17 @@ body {
       <v-toolbar-side-icon @click.stop="drawerOpen = !drawerOpen"></v-toolbar-side-icon>
       <v-icon class="mx-3">fab fa-youtube</v-icon>
       <v-toolbar-title class="mr-5 align-center">
-        <span class="title">MiniZinc Web IDE</span>
+        <span class="title">MiniZinc Web IDE - {{currentFile}}</span>
       </v-toolbar-title>
     </v-toolbar>
     <v-content>
       <v-container fluid fill-height class="remove-margin">
-        <v-layout align-space-around justify-center align-center>
+        <v-layout align-space-around>
            <v-flex xs8 fill-height fill-width>
             <editor id="editor" v-model="codeEntered" lang="ruby" v-bind:theme="theme" @init="initEditor"></editor>
            </v-flex>
           <v-flex xs4 fill-height fill-width>
-            <h1 class="fill-space">This will be the console</h1>
+            <p class="left-align">{{consoleOutput}}</p>
           </v-flex>
         </v-layout>
       </v-container>
@@ -88,6 +85,9 @@ export default {
   data: function() {
     return {
       drawerOpen: false,
+      currentFile: 'demo.mzn',
+      theme: 'twilight',
+      consoleOutput: 'Console output will go here',
       codeEntered:
 `% Golomb rulers.
 
@@ -106,7 +106,6 @@ solve minimize mark[n];
 
 output ["golomb: ", show(mark), "\\n"];
 `,
-      theme: 'twilight',
     };
   },
   components: {
