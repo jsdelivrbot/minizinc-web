@@ -33,14 +33,9 @@ body {
 	margin: 0 !important;
 	padding: 0 !important;
 }
-.yellow {
-	background-color: yellow;
+.fill-space {
 	height: 100%;
 	width: 100%;
-}
-.blue {
-	background-color: blue;
-	height: 100%;
 }
 </style>
 
@@ -78,7 +73,7 @@ body {
             <editor id="editor" v-model="codeEntered" lang="ruby" v-bind:theme="theme" @init="initEditor"></editor>
            </v-flex>
           <v-flex xs4 fill-height fill-width>
-            <h1 class="blue">This will be the console</h1>
+            <h1 class="fill-space">This will be the console</h1>
           </v-flex>
         </v-layout>
       </v-container>
@@ -93,7 +88,24 @@ export default {
   data: function() {
     return {
       drawerOpen: false,
-      codeEntered: `#this is a comment\nlet test= true;\nif (test){\t\nconsole.log('Hello World!')\n}\n`,
+      codeEntered:
+`% Golomb rulers.
+
+include "globals.mzn";
+
+int: n = 4;
+
+array [1..n] of var 0..(n * n): mark;
+
+constraint mark[1] = 0;
+constraint forall (i in 1..(n - 1)) (mark[i] < mark[i + 1]);
+constraint
+    all_different (i in 1..n, j in (i + 1)..n) (mark[j] - mark[i]);
+
+solve minimize mark[n];
+
+output ["golomb: ", show(mark), "\\n"];
+`,
       theme: 'twilight',
     };
   },
