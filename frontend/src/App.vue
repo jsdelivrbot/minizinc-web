@@ -1,6 +1,15 @@
 <template>
   <div id="app">
-    <editor id="editor" v-model="codeEntered" lang="html" theme="twilight" mode="javascript" @init="initEditor"></editor>
+    <v-toolbar dark color="primary">
+      <v-toolbar-side-icon></v-toolbar-side-icon>
+      <v-toolbar-title class="white--text">MiniZinc Web IDE</v-toolbar-title>
+      <v-spacer></v-spacer>
+
+      <v-btn icon>
+        <v-icon>more_vert</v-icon>
+      </v-btn>
+    </v-toolbar>
+    <!-- <editor id="editor" v-model="codeEntered" lang="javascript" v-bind:theme="theme" @init="initEditor"></editor> -->
   </div>
 </template>
 
@@ -9,7 +18,8 @@ export default {
   name: 'app',
   data: function(){
     return{
-      codeEntered:""
+      codeEntered:`let test= true;\nif (test){  \nconsole.log('Hello World!')\n}\n`,
+      theme: 'twilight'
     }
   },
   components: {
@@ -17,13 +27,11 @@ export default {
   },
   methods:{
     initEditor(){
-
       require('brace/mode/javascript');
       require('brace/theme/twilight');
     }
   },
-  created(){
-  }
+  created(){}
 }
 </script>
 
@@ -39,7 +47,7 @@ export default {
 
 body {
 	overflow: hidden;
-	background-color: black;
+	/* background-color: black; */
 }
 
 #editor {
@@ -50,5 +58,7 @@ body {
 	bottom: 0;
 	left: 0;
 	right: 0;
+  font-size:20px;
+
 }
 </style>
