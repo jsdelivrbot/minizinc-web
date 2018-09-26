@@ -9,6 +9,7 @@
 
 .sidebar-header {
 	font-size: 24px;
+	margin-top: 30px;
 }
 
 body {
@@ -40,7 +41,7 @@ body {
       app
     >
       <v-list>
-        <v-header class="sidebar-header">Files</v-header>
+        <v-subheader class="sidebar-header">Files</v-subheader>
       </v-list>
     </v-navigation-drawer>
     <v-toolbar
@@ -58,7 +59,7 @@ body {
     <v-content>
       <v-container fill-height>
         <v-layout justify-center align-center>
-          <editor id="editor" v-model="codeEntered" lang="javascript" v-bind:theme="theme" @init="initEditor"></editor>
+          <editor id="editor" v-model="codeEntered" lang="ruby" v-bind:theme="theme" @init="initEditor"></editor>
         </v-layout>
       </v-container>
     </v-content>
@@ -81,9 +82,48 @@ export default {
 	},
 	methods: {
 		initEditor() {
-			require('brace/mode/javascript');
+			require('brace/mode/ruby');
 			require('brace/theme/twilight');
-		},
+    },
+    loadAllThemes(){
+			require('brace/theme/ambiance');
+			require('brace/theme/chaos');
+			require('brace/theme/chrome');
+			require('brace/theme/clouds_midnight');
+			require('brace/theme/clouds');
+			require('brace/theme/cobalt');
+			require('brace/theme/crimson_editor');
+			require('brace/theme/dawn');
+			require('brace/theme/dracula');
+			require('brace/theme/dreamweaver');
+			require('brace/theme/eclipse');
+			require('brace/theme/github');
+			require('brace/theme/gob');
+			require('brace/theme/gruvbox');
+			require('brace/theme/idle_fingers');
+			require('brace/theme/iplastic');
+			require('brace/theme/katzenmilch');
+			require('brace/theme/kr_theme');
+			require('brace/theme/kuroir');
+			require('brace/theme/merbivore_soft');
+			require('brace/theme/merbivore');
+			require('brace/theme/mono_industrial');
+			require('brace/theme/monokai');
+			require('brace/theme/pastel_on_dark');
+			require('brace/theme/solarized_dark');
+			require('brace/theme/solarized_light');
+			require('brace/theme/sqlserver');
+			require('brace/theme/terminal');
+			require('brace/theme/textmate');
+			require('brace/theme/tomorrow_night_blue');
+			require('brace/theme/tomorrow_night_bright');
+			require('brace/theme/tomorrow_night_eighties');
+			require('brace/theme/tomorrow_night');
+			require('brace/theme/tomorrow');
+			require('brace/theme/vibrant_ink');
+			require('brace/theme/xcode');
+
+    }
 	},
 	created() {},
 };
