@@ -13,19 +13,34 @@
 }
 
 body {
-	overflow: hidden;
-	background-color: black;
+	/* overflow: hidden; */
+	background-color: white;
 }
 
 #editor {
 	margin: 0;
-	margin-top: 10px;
-	position: absolute;
+	/* margin-top: 10px; */
+	/* position: absolute;
 	top: 0;
-	bottom: 0;
+	bottom: 0;*/
 	left: 0;
-	right: 0;
+	height: 100%;
+	width: 100%;
+	/* right: 0; */
 	font-size: 20px;
+}
+.remove-margin {
+	margin: 0 !important;
+	padding: 0 !important;
+}
+.yellow {
+	background-color: yellow;
+	height: 100%;
+	width: 100%;
+}
+.blue {
+	background-color: blue;
+	height: 100%;
 }
 </style>
 
@@ -57,9 +72,14 @@ body {
       </v-toolbar-title>
     </v-toolbar>
     <v-content>
-      <v-container fill-height>
-        <v-layout justify-center align-center>
-          <editor id="editor" v-model="codeEntered" lang="ruby" v-bind:theme="theme" @init="initEditor"></editor>
+      <v-container fluid fill-height class="remove-margin">
+        <v-layout align-space-around justify-center align-center>
+           <v-flex xs8 fill-height fill-width>
+            <editor id="editor" v-model="codeEntered" lang="ruby" v-bind:theme="theme" @init="initEditor"></editor>
+           </v-flex>
+          <v-flex xs4 fill-height fill-width>
+            <h1 class="blue">This will be the console</h1>
+          </v-flex>
         </v-layout>
       </v-container>
     </v-content>
@@ -69,63 +89,63 @@ body {
 
 <script>
 export default {
-	name: 'app',
-	data: function() {
-		return {
+  name: 'app',
+  data: function() {
+    return {
       drawerOpen: false,
-			codeEntered: `let test= true;\nif (test){  \nconsole.log('Hello World!')\n}\n`,
-			theme: 'twilight',
-		};
-	},
-	components: {
-		editor: require('vue2-ace-editor'),
-	},
-	methods: {
-		initEditor() {
-			require('brace/mode/ruby');
-			require('brace/theme/twilight');
+      codeEntered: `#this is a comment\nlet test= true;\nif (test){\t\nconsole.log('Hello World!')\n}\n`,
+      theme: 'twilight',
+    };
+  },
+  components: {
+    editor: require('vue2-ace-editor'),
+  },
+  methods: {
+    initEditor() {
+      require('brace/mode/ruby');
+      require('brace/theme/twilight');
     },
     loadAllThemes(){
-			require('brace/theme/ambiance');
-			require('brace/theme/chaos');
-			require('brace/theme/chrome');
-			require('brace/theme/clouds_midnight');
-			require('brace/theme/clouds');
-			require('brace/theme/cobalt');
-			require('brace/theme/crimson_editor');
-			require('brace/theme/dawn');
-			require('brace/theme/dracula');
-			require('brace/theme/dreamweaver');
-			require('brace/theme/eclipse');
-			require('brace/theme/github');
-			require('brace/theme/gob');
-			require('brace/theme/gruvbox');
-			require('brace/theme/idle_fingers');
-			require('brace/theme/iplastic');
-			require('brace/theme/katzenmilch');
-			require('brace/theme/kr_theme');
-			require('brace/theme/kuroir');
-			require('brace/theme/merbivore_soft');
-			require('brace/theme/merbivore');
-			require('brace/theme/mono_industrial');
-			require('brace/theme/monokai');
-			require('brace/theme/pastel_on_dark');
-			require('brace/theme/solarized_dark');
-			require('brace/theme/solarized_light');
-			require('brace/theme/sqlserver');
-			require('brace/theme/terminal');
-			require('brace/theme/textmate');
-			require('brace/theme/tomorrow_night_blue');
-			require('brace/theme/tomorrow_night_bright');
-			require('brace/theme/tomorrow_night_eighties');
-			require('brace/theme/tomorrow_night');
-			require('brace/theme/tomorrow');
-			require('brace/theme/vibrant_ink');
-			require('brace/theme/xcode');
+      require('brace/theme/ambiance');
+      require('brace/theme/chaos');
+      require('brace/theme/chrome');
+      require('brace/theme/clouds_midnight');
+      require('brace/theme/clouds');
+      require('brace/theme/cobalt');
+      require('brace/theme/crimson_editor');
+      require('brace/theme/dawn');
+      require('brace/theme/dracula');
+      require('brace/theme/dreamweaver');
+      require('brace/theme/eclipse');
+      require('brace/theme/github');
+      require('brace/theme/gob');
+      require('brace/theme/gruvbox');
+      require('brace/theme/idle_fingers');
+      require('brace/theme/iplastic');
+      require('brace/theme/katzenmilch');
+      require('brace/theme/kr_theme');
+      require('brace/theme/kuroir');
+      require('brace/theme/merbivore_soft');
+      require('brace/theme/merbivore');
+      require('brace/theme/mono_industrial');
+      require('brace/theme/monokai');
+      require('brace/theme/pastel_on_dark');
+      require('brace/theme/solarized_dark');
+      require('brace/theme/solarized_light');
+      require('brace/theme/sqlserver');
+      require('brace/theme/terminal');
+      require('brace/theme/textmate');
+      require('brace/theme/tomorrow_night_blue');
+      require('brace/theme/tomorrow_night_bright');
+      require('brace/theme/tomorrow_night_eighties');
+      require('brace/theme/tomorrow_night');
+      require('brace/theme/tomorrow');
+      require('brace/theme/vibrant_ink');
+      require('brace/theme/xcode');
 
     }
-	},
-	created() {},
+  },
+  created() {},
 };
 </script>
 
