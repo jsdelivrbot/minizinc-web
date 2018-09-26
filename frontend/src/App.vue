@@ -71,7 +71,7 @@ export default {
 	name: 'app',
 	data: function() {
 		return {
-      drawerOpen: true,
+      drawerOpen: false,
 			codeEntered: `let test= true;\nif (test){  \nconsole.log('Hello World!')\n}\n`,
 			theme: 'twilight',
 		};
