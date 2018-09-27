@@ -100,6 +100,7 @@ body {
                   placeholder="model.mzn data.dzn"
                   :value="files"
                 ></v-text-field>
+                <v-btn @click="sendScript()" color="error">Send</v-btn>
               </v-flex>
             </v-layout>
             <p class="left-align">{{consoleOutput}}</p>
@@ -112,6 +113,8 @@ body {
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
 	name: 'app',
 	data: function() {
@@ -121,13 +124,14 @@ export default {
       theme: 'twilight',
       flags: '--solver Gecode',
       files: 'model.mzn data.dzn',
-			consoleOutput: 'Console output will go here',
+      consoleBaseOutput: 'Console output will go here\n\n',
+      consoleOutput: 'Console output will go here\n\n',
 			codeEntered: `int: n;
 array[1..n] of var 1..2*n: x;
 include "alldifferent.mzn";
 constraint alldifferent(x);
 solve maximize sum(x);
-output ["The resulting values are \\(x).\\n"];
+output ["The resulting values are \(x).\n"];
 `,
 		};
 	},
@@ -138,7 +142,27 @@ output ["The resulting values are \\(x).\\n"];
 		initEditor() {
 			require('brace/mode/ruby');
 			require('brace/theme/twilight');
-		},
+    },
+    sendScript(){
+      let self = this;
+      let tempFiles = [];
+      tempFiles.push({
+        name: 'model.mzn',
+        code: self.codeEntered
+      })
+      tempFiles.push({
+        name: 'data.dzn',
+        code: 'n = 5;'
+      })
+      axios.post('http://localhost:3000/api/run-zinc', {
+          flags: self.flags.split(' '),
+          files: tempFiles
+      })
+        .then(res => {
+          console.log('res: ', res);
+          self.consoleOutput = self.consoleBaseOutput + res.data;
+      });
+    },
 		loadAllThemes() {
 			require('brace/theme/ambiance');
 			require('brace/theme/chaos');

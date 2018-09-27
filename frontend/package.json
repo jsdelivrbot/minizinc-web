@@ -13,11 +13,12 @@
     "@vue/cli-plugin-babel": "^3.0.3",
     "@vue/cli-plugin-eslint": "^3.0.3",
     "@vue/cli-service": "^3.0.3",
+    "axios": "^0.18.0",
     "vue": "^2.5.17",
+    "vue-cli-plugin-vuetify": "^0.2.0",
     "vue-template-compiler": "^2.5.17",
     "vue2-ace-editor": "0.0.11",
-    "vuetify": "^1.2.0",
-    "vue-cli-plugin-vuetify": "^0.2.0"
+    "vuetify": "^1.2.0"
   },
   "devDependencies": {},
   "eslintConfig": {

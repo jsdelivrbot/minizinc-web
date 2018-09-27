@@ -9,49 +9,33 @@ app.use(helmet());
 app.use(serveStatic(path.join(__dirname, 'frontend/dist')));
 const port = process.env.PORT || 3000;
 
-/*
-	let req = {
-		body: {
-			flags: string[]
-			files: object[]: {
-				name: string
-				code: string
-			}
-		}
-	}
-*/
-app.post('/run-zinc', (req, response) => {
-	let flags = req.body.flags;
-	let files = req.body.files;
+app.use(function(req, res, next) {
+	// Website you wish to allow to connect
+	res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
 
-	//make sure files exist for minizinc command line
-	let tmpFiles = [];
-	for (file of files) {
-		fs.writeFile(`./tmp/${file.name}`, file.code, function(err) {
-			if (err) {
-				response.send(err);
-			}
-			console.log(`The file ${file.name} was saved!`);
-		});
-		tmpFiles.push(`./tmp/${file.name}`);
-	}
+	// Request methods you wish to allow
+	res.setHeader(
+		'Access-Control-Allow-Methods',
+		'GET, POST, OPTIONS, PUT, PATCH, DELETE',
+	);
 
-	//files now exist in 'tmp' folder
-	cmd.get(`minizinc ${flags.join(' ')} ${tmpFiles.join(' ')}`, function(
-		err,
-		data,
-	) {
-		if (!err) {
-			console.log('the node-cmd returned with:\n\n', data);
-		} else {
-			console.log('error', err);
-		}
-	});
+	// Request headers you wish to allow
+	res.setHeader(
+		'Access-Control-Allow-Headers',
+		'X-Requested-With,content-type',
+	);
 
-	// axios.post(req.body.url, req.body).then(function(res) {
-	// 	response.send(res.data);
-	// });
+	// Set to true if you need the website to include cookies in the requests sent
+	// to the API (e.g. in case you use sessions)
+	// res.setHeader('Access-Control-Allow-Credentials', true);
+
+	// Pass to next layer of middleware
+	next();
 });
+
+const apiRouter = require('./api.js');
+
+app.use('/api', apiRouter);
 
 app.listen(port, () => {
 	console.log(`Listening on port  http://localhost:${port}`);
