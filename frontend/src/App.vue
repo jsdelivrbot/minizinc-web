@@ -31,8 +31,19 @@ body {
 }
 
 .left-align {
-	font-size: 20px;
+	font-size: 15px;
 	text-align: left;
+	margin-top: 20px;
+}
+
+.inputs {
+	margin-left: 10px;
+	width: 90%;
+	font-family: Consolas, monaco, monospace;
+}
+
+.code-text {
+	font-family: Consolas, monaco, monospace;
 }
 </style>
 
@@ -70,6 +81,27 @@ body {
             <editor id="editor" v-model="codeEntered" lang="ruby" v-bind:theme="theme" @init="initEditor"></editor>
            </v-flex>
           <v-flex xs4 fill-height fill-width>
+            <v-layout>
+              <v-flex xs3>
+                <p class="left-align">Console:&nbsp; <span class="code-text">minizinc</span></p>
+              </v-flex>
+              <v-flex xs4>
+                <v-text-field
+                  class="inputs"
+                  label="Flags"
+                  placeholder="--solver Gecode"
+                  :value="flags"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs5>
+                <v-text-field
+                  class="inputs"
+                  label="Files"
+                  placeholder="model.mzn data.dzn"
+                  :value="files"
+                ></v-text-field>
+              </v-flex>
+            </v-layout>
             <p class="left-align">{{consoleOutput}}</p>
           </v-flex>
         </v-layout>
@@ -81,83 +113,71 @@ body {
 
 <script>
 export default {
-  name: 'app',
-  data: function() {
-    return {
-      drawerOpen: false,
-      currentFile: 'demo.mzn',
+	name: 'app',
+	data: function() {
+		return {
+			drawerOpen: false,
+			currentFile: 'demo.mzn',
       theme: 'twilight',
-      consoleOutput: 'Console output will go here',
-      codeEntered:
-`% Golomb rulers.
-
-include "globals.mzn";
-
-int: n = 4;
-
-array [1..n] of var 0..(n * n): mark;
-
-constraint mark[1] = 0;
-constraint forall (i in 1..(n - 1)) (mark[i] < mark[i + 1]);
-constraint
-    all_different (i in 1..n, j in (i + 1)..n) (mark[j] - mark[i]);
-
-solve minimize mark[n];
-
-output ["golomb: ", show(mark), "\\n"];
+      flags: '--solver Gecode',
+      files: 'model.mzn data.dzn',
+			consoleOutput: 'Console output will go here',
+			codeEntered: `int: n;
+array[1..n] of var 1..2*n: x;
+include "alldifferent.mzn";
+constraint alldifferent(x);
+solve maximize sum(x);
+output ["The resulting values are \\(x).\\n"];
 `,
-    };
-  },
-  components: {
-    editor: require('vue2-ace-editor'),
-  },
-  methods: {
-    initEditor() {
-      require('brace/mode/ruby');
-      require('brace/theme/twilight');
-    },
-    loadAllThemes(){
-      require('brace/theme/ambiance');
-      require('brace/theme/chaos');
-      require('brace/theme/chrome');
-      require('brace/theme/clouds_midnight');
-      require('brace/theme/clouds');
-      require('brace/theme/cobalt');
-      require('brace/theme/crimson_editor');
-      require('brace/theme/dawn');
-      require('brace/theme/dracula');
-      require('brace/theme/dreamweaver');
-      require('brace/theme/eclipse');
-      require('brace/theme/github');
-      require('brace/theme/gob');
-      require('brace/theme/gruvbox');
-      require('brace/theme/idle_fingers');
-      require('brace/theme/iplastic');
-      require('brace/theme/katzenmilch');
-      require('brace/theme/kr_theme');
-      require('brace/theme/kuroir');
-      require('brace/theme/merbivore_soft');
-      require('brace/theme/merbivore');
-      require('brace/theme/mono_industrial');
-      require('brace/theme/monokai');
-      require('brace/theme/pastel_on_dark');
-      require('brace/theme/solarized_dark');
-      require('brace/theme/solarized_light');
-      require('brace/theme/sqlserver');
-      require('brace/theme/terminal');
-      require('brace/theme/textmate');
-      require('brace/theme/tomorrow_night_blue');
-      require('brace/theme/tomorrow_night_bright');
-      require('brace/theme/tomorrow_night_eighties');
-      require('brace/theme/tomorrow_night');
-      require('brace/theme/tomorrow');
-      require('brace/theme/vibrant_ink');
-      require('brace/theme/xcode');
-
-    }
-  },
-  created() {},
+		};
+	},
+	components: {
+		editor: require('vue2-ace-editor'),
+	},
+	methods: {
+		initEditor() {
+			require('brace/mode/ruby');
+			require('brace/theme/twilight');
+		},
+		loadAllThemes() {
+			require('brace/theme/ambiance');
+			require('brace/theme/chaos');
+			require('brace/theme/chrome');
+			require('brace/theme/clouds_midnight');
+			require('brace/theme/clouds');
+			require('brace/theme/cobalt');
+			require('brace/theme/crimson_editor');
+			require('brace/theme/dawn');
+			require('brace/theme/dracula');
+			require('brace/theme/dreamweaver');
+			require('brace/theme/eclipse');
+			require('brace/theme/github');
+			require('brace/theme/gob');
+			require('brace/theme/gruvbox');
+			require('brace/theme/idle_fingers');
+			require('brace/theme/iplastic');
+			require('brace/theme/katzenmilch');
+			require('brace/theme/kr_theme');
+			require('brace/theme/kuroir');
+			require('brace/theme/merbivore_soft');
+			require('brace/theme/merbivore');
+			require('brace/theme/mono_industrial');
+			require('brace/theme/monokai');
+			require('brace/theme/pastel_on_dark');
+			require('brace/theme/solarized_dark');
+			require('brace/theme/solarized_light');
+			require('brace/theme/sqlserver');
+			require('brace/theme/terminal');
+			require('brace/theme/textmate');
+			require('brace/theme/tomorrow_night_blue');
+			require('brace/theme/tomorrow_night_bright');
+			require('brace/theme/tomorrow_night_eighties');
+			require('brace/theme/tomorrow_night');
+			require('brace/theme/tomorrow');
+			require('brace/theme/vibrant_ink');
+			require('brace/theme/xcode');
+		},
+	},
+	created() {},
 };
 </script>
-
-

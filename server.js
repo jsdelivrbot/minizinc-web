@@ -25,7 +25,7 @@ app.post('/run-zinc', (req, response) => {
 	let files = req.body.files;
 
 	//make sure files exist for minizinc command line
-	let tmpFiles = []
+	let tmpFiles = [];
 	for (file of files) {
 		fs.writeFile(`./tmp/${file.name}`, file.code, function(err) {
 			if (err) {
@@ -33,13 +33,16 @@ app.post('/run-zinc', (req, response) => {
 			}
 			console.log(`The file ${file.name} was saved!`);
 		});
-		tmpFiles.push(`./tmp/${file.name}`)
+		tmpFiles.push(`./tmp/${file.name}`);
 	}
 
 	//files now exist in 'tmp' folder
-	cmd.get(`minizinc ${flags.join(' ')} ${}`, function(err, data, stderr) {
+	cmd.get(`minizinc ${flags.join(' ')} ${tmpFiles.join(' ')}`, function(
+		err,
+		data,
+	) {
 		if (!err) {
-			console.log('the node-cmd cloned dir contains these files :\n\n', data);
+			console.log('the node-cmd returned with:\n\n', data);
 		} else {
 			console.log('error', err);
 		}
