@@ -14,7 +14,7 @@ const router = require('express').Router();
 
 router.post('/run-zinc', (req, res) => {
 	console.log('req: ', req.body);
-	res.send(json);
+	res.send(req);
 
 	// let flags = req.body.flags;
 	// let files = req.body.files;
