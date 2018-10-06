@@ -20,7 +20,9 @@
     "vue2-ace-editor": "0.0.11",
     "vuetify": "^1.2.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "webpack": "^4.20.2"
+  },
   "eslintConfig": {
     "root": true,
     "env": {
