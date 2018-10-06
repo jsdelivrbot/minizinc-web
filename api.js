@@ -12,9 +12,9 @@
 
 const router = require('express').Router();
 
-router.post('/run-zinc', (req, response) => {
+router.post('/run-zinc', (req, res) => {
 	console.log('req: ', req.body);
-	response.send(req);
+	res.send(json);
 
 	// let flags = req.body.flags;
 	// let files = req.body.files;
@@ -24,7 +24,7 @@ router.post('/run-zinc', (req, response) => {
 	// for (file of files) {
 	// 	fs.writeFile(`./tmp/${file.name}`, file.code, function(err) {
 	// 		if (err) {
-	// 			response.send(err);
+	// 			res.send(err);
 	// 		}
 	// 		console.log(`The file ${file.name} was saved!`);
 	// 	});
@@ -44,7 +44,7 @@ router.post('/run-zinc', (req, response) => {
 	// });
 
 	// axios.post(req.body.url, req.body).then(function(res) {
-	// 	response.send(res.data);
+	// 	res.send(res.data);
 	// });
 });
 

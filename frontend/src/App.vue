@@ -113,7 +113,8 @@ body {
 </template>
 
 <script>
-import axios from 'axios';
+/* eslint-disable */
+import axiosBase from '../utils/requestBase';
 
 export default {
 	name: 'app',
@@ -154,13 +155,14 @@ output ["The resulting values are \(x).\n"];
         name: 'data.dzn',
         code: 'n = 5;'
       })
-      axios.post('http://localhost:3000/api/run-zinc', {
-          flags: self.flags.split(' '),
-          files: tempFiles
-      })
-        .then(res => {
-          console.log('res: ', res);
-          self.consoleOutput = self.consoleBaseOutput + res.data;
+      axiosBase()
+        .post('/api/run-zinc', {
+            flags: self.flags.split(' '),
+            files: [...tempFiles]
+        })
+      .then(res => {
+        console.log('res: ', res);
+        self.consoleOutput = self.consoleBaseOutput + res.data;
       });
     },
 		loadAllThemes() {
