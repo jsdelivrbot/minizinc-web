@@ -51,6 +51,7 @@ body {
   padding: 0;
   margin-top: 10px;
 }
+
 </style>
 
 <template>
@@ -70,6 +71,12 @@ body {
           <v-list-tile-title selected v-text="file.name"></v-list-tile-title>
         </v-list-tile>
       </v-list>
+      <v-select
+        :items="themes"
+        label="Select Theme"
+        outline
+        v-on:change="selectTheme"
+      ></v-select>
     </v-navigation-drawer>
     <v-toolbar
       color="red"
@@ -152,7 +159,46 @@ output ["The resulting values are \\(x).\\n"];
       ],
       consoleBaseOutput: 'Console output will go here\n\n',
       consoleOutput: '',
-      codeEntered: ''
+      codeEntered: '',
+      themes: [
+        'ambiance',
+        'chaos',
+        'chrome',
+        'clouds_midnight',
+        'clouds',
+        'cobalt',
+        'crimson_editor',
+        'dawn',
+        'dracula',
+        'dreamweaver',
+        'eclipse',
+        'github',
+        'gob',
+        'gruvb,',
+        'idle_fingers',
+        'iplastic',
+        'katzenmilch',
+        'kr_theme',
+        'kuroir',
+        'merbivore_soft',
+        'merbivore',
+        'mono_industrial',
+        'monokai',
+        'pastel_on_dark',
+        'solarized_dark',
+        'solarized_light',
+        'sqlserver',
+        'terminal',
+        'textmate',
+        'tomorrow_night_blue',
+        'tomorrow_night_bright',
+        'tomorrow_night_eighties',
+        'tomorrow_night',
+        'tomorrow',
+        'twilight',
+        'vibrant_ink',
+        'xcode'
+      ]
 		};
 	},
 	components: {
@@ -162,6 +208,9 @@ output ["The resulting values are \\(x).\\n"];
 		initEditor() {
 			require('brace/mode/ruby');
 			require('brace/theme/twilight');
+    },
+    selectTheme(theme){
+      this.theme = theme
     },
     switchFile(file) {
       this.saveCurrentFile()
@@ -214,8 +263,7 @@ output ["The resulting values are \\(x).\\n"];
 			require('brace/theme/idle_fingers');
 			require('brace/theme/iplastic');
 			require('brace/theme/katzenmilch');
-      req
-      uire('brace/theme/kr_theme');
+      require('brace/theme/kr_theme');
 			require('brace/theme/kuroir');
 			require('brace/theme/merbivore_soft');
 			require('brace/theme/merbivore');
@@ -239,6 +287,7 @@ output ["The resulting values are \\(x).\\n"];
 	created() {
     this.codeEntered = this.files[0].code
     this.selectedFile = this.files[0].name
+    this.loadAllThemes()
   },
 };
 </script>
