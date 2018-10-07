@@ -209,7 +209,8 @@ output ["The resulting values are \\(x).\\n"];
 			require('brace/theme/idle_fingers');
 			require('brace/theme/iplastic');
 			require('brace/theme/katzenmilch');
-			require('brace/theme/kr_theme');
+      req
+      uire('brace/theme/kr_theme');
 			require('brace/theme/kuroir');
 			require('brace/theme/merbivore_soft');
 			require('brace/theme/merbivore');
