@@ -175,6 +175,7 @@ output ["The resulting values are \\(x).\\n"];
       }
     },
     sendScript(){
+      this.consoleOutput = ''
       this.saveCurrentFile()
       let self = this;
       let tempFiles = [];
