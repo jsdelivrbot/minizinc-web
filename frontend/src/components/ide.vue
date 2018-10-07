@@ -93,7 +93,7 @@ body {
       <v-container fluid fill-height class="remove-margin">
         <v-layout align-space-around>
            <v-flex xs8 fill-height fill-width>
-            <editor id="editor" v-model="codeEntered" lang="ruby" v-bind:theme="theme" @init="initEditor"></editor>
+            <editor id="editor" v-model="codeEntered" lang="ruby" v-bind:theme="theme"></editor>
            </v-flex>
           <v-flex xs4 fill-height fill-width>
             <v-layout>
@@ -137,7 +137,7 @@ export default {
 		return {
 			drawerOpen: false,
 			currentFile: 'demo.mzn',
-      theme: 'twilight',
+      theme: 'vibrant_ink',
       flags: '--solver Gecode',
       filesToSend: 'model.mzn data.dzn',
       selectedFile: '',
@@ -149,7 +149,7 @@ array[1..n] of var 1..2*n: x;
 include "alldifferent.mzn";
 constraint alldifferent(x);
 solve maximize sum(x);
-output ["The resulting values are \\(x).\\n"];
+output ["The resulting values are \\(x)."];
 `
         },
         {
@@ -205,10 +205,6 @@ output ["The resulting values are \\(x).\\n"];
 		editor: require('vue2-ace-editor'),
 	},
 	methods: {
-		initEditor() {
-			require('brace/mode/ruby');
-			require('brace/theme/twilight');
-    },
     selectTheme(theme){
       this.theme = theme
     },
@@ -246,6 +242,8 @@ output ["The resulting values are \\(x).\\n"];
         });
     },
 		loadAllThemes() {
+      require('brace/mode/ruby');
+			require('brace/theme/twilight');
 			require('brace/theme/ambiance');
 			require('brace/theme/chaos');
 			require('brace/theme/chrome');
