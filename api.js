@@ -17,6 +17,7 @@ const router = require('express').Router();
 router.post('/run-zinc', (req, res) => {
 	let flags = req.body.flags;
 	let files = req.body.files;
+	console.log('files: ', files);
 
 	// make sure files exist for minizinc command line
 	let tmpFiles = [];

@@ -60,6 +60,9 @@ body {
     >
       <v-list>
         <v-subheader class="sidebar-header">Files</v-subheader>
+        <v-list-tile v-for="file in files" :key="file.name" @click="switchFile(file)"> 
+          <v-list-tile-title selected v-text="file.name"></v-list-tile-title>
+        </v-list-tile>
       </v-list>
     </v-navigation-drawer>
     <v-toolbar
@@ -71,7 +74,7 @@ body {
       <v-toolbar-side-icon @click.stop="drawerOpen = !drawerOpen"></v-toolbar-side-icon>
       <v-icon class="mx-3">fab fa-youtube</v-icon>
       <v-toolbar-title class="mr-5 align-center">
-        <span class="title">MiniZinc Web IDE - {{currentFile}}</span>
+        <span class="title">MiniZinc Web IDE - {{selectedFile}}</span>
       </v-toolbar-title>
     </v-toolbar>
     <v-content>
@@ -98,7 +101,7 @@ body {
                   class="inputs"
                   label="Files"
                   placeholder="model.mzn data.dzn"
-                  :value="files"
+                  :value="filesToSend"
                 ></v-text-field>
                 <v-btn @click="sendScript()" color="error">Send</v-btn>
               </v-flex>
@@ -125,16 +128,27 @@ export default {
 			currentFile: 'demo.mzn',
       theme: 'twilight',
       flags: '--solver Gecode',
-      files: 'model.mzn data.dzn',
-      consoleBaseOutput: 'Console output will go here\n\n',
-      consoleOutput: '',
-      codeEntered: `int: n;
+      filesToSend: 'model.mzn data.dzn',
+      selectedFile: '',
+      files: [
+        {
+          name: 'model.mzn',
+          code: `int: n;
 array[1..n] of var 1..2*n: x;
 include "alldifferent.mzn";
 constraint alldifferent(x);
 solve maximize sum(x);
 output ["The resulting values are \\(x).\\n"];
 `
+        },
+        {
+          name: 'data.dzn',
+          code: 'n = 5;'
+        }
+      ],
+      consoleBaseOutput: 'Console output will go here\n\n',
+      consoleOutput: '',
+      codeEntered: ''
 		};
 	},
 	components: {
@@ -145,22 +159,31 @@ output ["The resulting values are \\(x).\\n"];
 			require('brace/mode/ruby');
 			require('brace/theme/twilight');
     },
+    switchFile(file) {
+      this.saveCurrentFile()
+      this.selectedFile = file.name
+      this.codeEntered = file.code
+      this.drawerOpen = false
+    },
+    saveCurrentFile() {
+      for(let f of this.files){
+        if (f.name === this.selectedFile) f.code = this.codeEntered
+      }
+    },
     sendScript(){
+      this.saveCurrentFile()
       let self = this;
       let tempFiles = [];
-      tempFiles.push({
-        name: 'model.mzn',
-        code: self.codeEntered
-      })
-      tempFiles.push({
-        name: 'data.dzn',
-        code: 'n = 5;'
-      })
+      for (let file of self.files) {
+        if (self.filesToSend.indexOf(file.name) > -1) {
+          tempFiles.push(file)
+        }
+      }
 
       axiosBase()
         .post('/api/run-zinc', {
           flags: self.flags.split(' '),
-          files: [...tempFiles]
+          files: tempFiles
         })
         .then(res => {
           let response = res.data.replace(/-/g, '');
@@ -207,6 +230,9 @@ output ["The resulting values are \\(x).\\n"];
 			require('brace/theme/xcode');
 		},
 	},
-	created() {},
+	created() {
+    this.codeEntered = this.files[0].code
+    this.selectedFile = this.files[0].name
+  },
 };
 </script>
