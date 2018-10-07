@@ -103,6 +103,7 @@ body {
                 <v-btn @click="sendScript()" color="error">Send</v-btn>
               </v-flex>
             </v-layout>
+            <p class="left-align">{{consoleBaseOutput}}</p>
             <p class="left-align">{{consoleOutput}}</p>
           </v-flex>
         </v-layout>
@@ -126,13 +127,13 @@ export default {
       flags: '--solver Gecode',
       files: 'model.mzn data.dzn',
       consoleBaseOutput: 'Console output will go here\n\n',
-      consoleOutput: 'Console output will go here\n\n',
+      consoleOutput: '',
       codeEntered: `int: n;
 array[1..n] of var 1..2*n: x;
 include "alldifferent.mzn";
 constraint alldifferent(x);
 solve maximize sum(x);
-output ["The resulting values are \(x).\n"];
+output ["The resulting values are \\(x).\\n"];
 `
 		};
 	},
@@ -149,22 +150,23 @@ output ["The resulting values are \(x).\n"];
       let tempFiles = [];
       tempFiles.push({
         name: 'model.mzn',
-        code: 'self.codeEntered'
+        code: self.codeEntered
       })
       tempFiles.push({
         name: 'data.dzn',
         code: 'n = 5;'
       })
+
       axiosBase()
         .post('/api/run-zinc', {
-          test: 'test'
-            // flags: self.flags.split(' '),
-            // files: [...tempFiles]
+          flags: self.flags.split(' '),
+          files: [...tempFiles]
         })
-      .then(res => {
-        console.log('res: ', res);
-        self.consoleOutput = self.consoleBaseOutput + res.data;
-      });
+        .then(res => {
+          let response = res.data.replace(/-/g, '');
+          response = response.replace(/=/g, '');
+          self.consoleOutput = response;
+        });
     },
 		loadAllThemes() {
 			require('brace/theme/ambiance');
