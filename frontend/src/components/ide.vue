@@ -1,10 +1,10 @@
 <style>
 #ide {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+	font-family: 'Avenir', Helvetica, Arial, sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-align: center;
+	color: #2c3e50;
 }
 
 .sidebar-header {
@@ -14,7 +14,7 @@
 
 body {
 	/* overflow: hidden; */
-  margin: 0;
+	margin: 0;
 	background-color: white;
 }
 
@@ -47,11 +47,10 @@ body {
 	font-family: Consolas, monaco, monospace;
 }
 .custom-container {
-  margin: 0;
-  padding: 0;
-  margin-top: 10px;
+	margin: 0;
+	padding: 0;
+	margin-top: 10px;
 }
-
 </style>
 
 <template>
@@ -220,7 +219,7 @@ output ["The resulting values are \\(x)."];
       }
     },
     sendScript(){
-      this.consoleOutput = ''
+      this.consoleOutput = 'Loading...'
       this.saveCurrentFile()
       let self = this;
       let tempFiles = [];
