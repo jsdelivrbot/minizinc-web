@@ -1,6 +1,5 @@
-
 const fs = require('fs');
-const cmd = require('node-cmd')
+const cmd = require('node-cmd');
 const router = require('express').Router();
 
 /*
@@ -17,16 +16,14 @@ const router = require('express').Router();
 router.post('/run-zinc', (req, res) => {
 	let flags = req.body.flags;
 	let files = req.body.files;
-	console.log('files: ', files);
 
 	// make sure files exist for minizinc command line
 	let tmpFiles = [];
-	for (file of files) {
+	for (let file of files) {
 		fs.writeFile(`./tmp/${file.name}`, file.code, function(err) {
 			if (err) {
 				res.send(err);
 			}
-			console.log(`The file ${file.name} was saved!`);
 		});
 		tmpFiles.push(`./tmp/${file.name}`);
 	}
@@ -38,7 +35,7 @@ router.post('/run-zinc', (req, res) => {
 	) {
 		if (!err) {
 			console.log('the node-cmd returned with:\n\n', data);
-			res.send(data)
+			res.send(data);
 		} else {
 			console.log('error', err);
 		}
