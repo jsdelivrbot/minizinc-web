@@ -1,11 +1,13 @@
-var mongoose = require('mongoose');
-var userSchema = mongoose.Schema({
-	google: {
-		id: String,
-		token: String,
-		email: String,
-		name: String,
-	},
-});
+const db = require('../db');
 
-module.exports = mongoose.model('User', userSchema);
+async function getUser(email) {
+	return await db
+		.collection('users')
+		.get(email)
+		.then(user => user.data())
+		.catch(err => err);
+}
+
+module.exports = {
+	getUser
+};
