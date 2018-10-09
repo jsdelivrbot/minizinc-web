@@ -25,9 +25,11 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 // app.use(flash()); // use connect-flash for flash messages stored in session
-require('./routes/auth')(app, passport);
 
-const apiRouter = require('./api.js');
+const db = require('./db.js');
+// const authRouter = require('./routes/auth.js')(app, passport);
+// app.use('/auth', authRouter);
+const apiRouter = require('./routes/api.js');
 app.use('/api', apiRouter);
 
 const port = process.env.PORT || 3000;
