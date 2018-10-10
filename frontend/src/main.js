@@ -3,10 +3,13 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import store from './store'
 
 import Vuetify from 'vuetify'
 
 import 'vuetify/dist/vuetify.min.css'
+
+import firebase from 'firebase'
 
 Vue.use(Vuetify, {
   iconfont: 'md'
@@ -18,6 +21,17 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
-  template: '<App/>'
+  template: '<App/>',
+  created () {
+    firebase.initializeApp({
+      apiKey: 'AIzaSyB0201qNOjRgCDiVNKw77wx-Kbkts-o_ak',
+      authDomain: 'minizinc-web-1538942191327.firebaseapp.com',
+      databaseURL: 'https://minizinc-web-1538942191327.firebaseio.com',
+      projectId: 'minizinc-web-1538942191327',
+      storageBucket: 'minizinc-web-1538942191327.appspot.com',
+      messagingSenderId: '1014902901695'
+    })
+  }
 })

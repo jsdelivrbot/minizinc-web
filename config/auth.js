@@ -1,6 +1,8 @@
 module.exports = {
-	clientID:
-		'1014902901695-ja16kvr074uldcdon00kf0qkkifuc3t1.apps.googleusercontent.com',
-	clientSecret: 'zUka33chrcg-E9QB8Y_yFrg7',
-	callbackURL: '/auth/google/callback'
+	apiKey: 'AIzaSyB0201qNOjRgCDiVNKw77wx-Kbkts-o_ak',
+	authDomain: 'minizinc-web-1538942191327.firebaseapp.com',
+	databaseURL: 'https://minizinc-web-1538942191327.firebaseio.com',
+	projectId: 'minizinc-web-1538942191327',
+	storageBucket: 'minizinc-web-1538942191327.appspot.com',
+	messagingSenderId: '1014902901695'
 };

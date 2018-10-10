@@ -54,7 +54,7 @@ body {
 </style>
 
 <template>
-  <div id="app">
+  <div id="ide">
   <v-app
     id="inspire"
     dark
@@ -129,9 +129,11 @@ body {
 
 <script>
 /* eslint-disable */
+import firebase from 'firebase'
 import axiosBase from '../../utils/requestBase';
 
 export default {
+  name: 'ide',
 	data: function() {
 		return {
 			drawerOpen: false,
@@ -279,9 +281,19 @@ output ["The resulting values are \\(x)."];
 			require('brace/theme/tomorrow');
 			require('brace/theme/vibrant_ink');
 			require('brace/theme/xcode');
-		},
+    },
+    logout() {
+      //todo log out user from state
+    }
 	},
 	created() {
+    const self = this;
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        self.$store.dispatch('signIn', user)
+      }
+    });
+
     this.codeEntered = this.files[0].code
     this.selectedFile = this.files[0].name
     this.loadAllThemes()
