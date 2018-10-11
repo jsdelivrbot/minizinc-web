@@ -5,8 +5,8 @@
       <v-card class="login-card">
           <div class="centerize">
             <v-card-text>
-              <span class="centerize my-header">Welcome to Mini Zinc Web IDE</span>
-              <span class="centerize my-header">Capstone project of Harrison Thomas</span>
+              <div class="centerize my-header">Welcome to Mini Zinc Web IDE</div>
+              <div class="centerize my-header">Capstone project of Harrison Thomas</div>
             </v-card-text>
             <div class="headline"></div>
           </div>
@@ -72,6 +72,6 @@ export default {
 
 .my-header {
 	font-size: 24px;
-	margin: 50px;
+	margin: 20px;
 }
 </style>
