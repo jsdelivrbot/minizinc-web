@@ -17,21 +17,26 @@ Vue.use(Vuetify, {
 
 Vue.config.productionTip = false
 
-/* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  router,
-  store,
-  components: { App },
-  template: '<App/>',
-  created () {
-    firebase.initializeApp({
-      apiKey: 'AIzaSyB0201qNOjRgCDiVNKw77wx-Kbkts-o_ak',
-      authDomain: 'minizinc-web-1538942191327.firebaseapp.com',
-      databaseURL: 'https://minizinc-web-1538942191327.firebaseio.com',
-      projectId: 'minizinc-web-1538942191327',
-      storageBucket: 'minizinc-web-1538942191327.appspot.com',
-      messagingSenderId: '1014902901695'
+let app
+firebase.initializeApp({
+  apiKey: 'AIzaSyB0201qNOjRgCDiVNKw77wx-Kbkts-o_ak',
+  authDomain: 'minizinc-web-1538942191327.firebaseapp.com',
+  databaseURL: 'https://minizinc-web-1538942191327.firebaseio.com',
+  projectId: 'minizinc-web-1538942191327',
+  storageBucket: 'minizinc-web-1538942191327.appspot.com',
+  messagingSenderId: '1014902901695'
+})
+firebase.auth().onAuthStateChanged(user => {
+  if (!app) {
+    app = new Vue({
+      el: '#app',
+      router,
+      store,
+      components: { App },
+      template: '<App/>',
+      created () {}
     })
   }
 })
+
+/* eslint-disable no-new */

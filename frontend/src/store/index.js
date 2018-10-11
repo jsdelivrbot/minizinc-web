@@ -26,6 +26,9 @@ export default new Vuex.Store({
         files: []
       }
       commit('setUser', newPayload)
+    },
+    logout ({ commit }, payload) {
+      commit('setUser', {})
     }
   },
   getters: {

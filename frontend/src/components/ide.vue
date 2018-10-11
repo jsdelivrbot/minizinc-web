@@ -51,6 +51,10 @@ body {
 	padding: 0;
 	margin-top: 10px;
 }
+.username {
+	margin-left: 20px;
+	margin-right: 20px;
+}
 </style>
 
 <template>
@@ -87,6 +91,17 @@ body {
       <v-toolbar-title class="mr-5 align-center">
         <span class="title">MiniZinc Web IDE - {{selectedFile}}</span>
       </v-toolbar-title>
+      <v-spacer></v-spacer>
+        <v-avatar
+          size="45"
+          color="grey lighten-4"
+        >
+          <img :src="this.$store.getters.user.photoURL || ''" alt="avatar">
+        </v-avatar>
+          <span class="username">{{this.$store.getters.user.displayName || ''}}</span>
+      <v-toolbar-items class="hidden-sm-and-down">
+        <v-btn @click="logout" flat>Logout</v-btn>
+      </v-toolbar-items>
     </v-toolbar>
     <v-content>
       <v-container fluid fill-height class="remove-margin">
@@ -283,7 +298,10 @@ output ["The resulting values are \\(x)."];
 			require('brace/theme/xcode');
     },
     logout() {
-      //todo log out user from state
+      const self = this;
+      firebase.auth().signOut()
+      self.$store.dispatch('logout')
+      self.$router.push({name: 'login'})
     }
 	},
 	created() {
