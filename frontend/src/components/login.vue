@@ -1,6 +1,21 @@
 <template>
-  <div id="login">
-   <div id="firebaseui-auth-container"></div>
+  <div class="login">
+  <v-layout row>
+    <v-flex xs12 sm6 offset-sm3>
+      <v-card class="login-card">
+          <div class="centerize">
+            <v-card-text>
+              <span class="centerize my-header">Welcome to Mini Zinc Web IDE</span>
+              <span class="centerize my-header">Capstone project of Harrison Thomas</span>
+            </v-card-text>
+            <div class="headline"></div>
+          </div>
+        <v-card-actions class="centerize">
+          <div id="firebaseui-auth-container"></div>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+  </v-layout>
   </div>
 </template>
 
@@ -33,12 +48,30 @@ export default {
 </script>
 
 <style>
-#login {
-	text-align: center;
-	justify-content: center;
+.login {
+	background-color: lightgray !important;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
 }
 
 .top-margin {
 	margin-top: 100px;
+}
+
+.login-card {
+	margin-top: 30vh;
+}
+
+.centerize {
+	justify-content: center !important;
+	text-align: center !important;
+}
+
+.my-header {
+	font-size: 24px;
+	margin: 50px;
 }
 </style>

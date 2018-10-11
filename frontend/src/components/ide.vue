@@ -299,9 +299,10 @@ output ["The resulting values are \\(x)."];
     },
     logout() {
       const self = this;
-      firebase.auth().signOut()
-      self.$store.dispatch('logout')
-      self.$router.push({name: 'login'})
+      firebase.auth().signOut().then(() => {
+        self.$store.dispatch('logout')
+        self.$router.push({name: 'login'})
+      })
     }
 	},
 	created() {
