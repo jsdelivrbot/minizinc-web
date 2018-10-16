@@ -69,7 +69,20 @@ body {
       app
     >
       <v-list>
-        <v-subheader class="sidebar-header">Files</v-subheader>
+        <v-subheader class="sidebar-header">Projects
+          <v-btn fab dark small color="red" @click="createProject">
+            <v-icon dark>add</v-icon>
+          </v-btn>
+        </v-subheader>
+        <!-- <v-list-tile v-for="file in files" :key="file.name" @click="switchFile(file)">
+          <v-list-tile-title selected v-text="file.name"></v-list-tile-title>
+        </v-list-tile> -->
+
+        <v-subheader class="sidebar-header">Files
+          <v-btn fab dark small color="red" @click="createFile">
+            <v-icon dark>add</v-icon>
+          </v-btn>
+        </v-subheader>
         <v-list-tile v-for="file in files" :key="file.name" @click="switchFile(file)">
           <v-list-tile-title selected v-text="file.name"></v-list-tile-title>
         </v-list-tile>
@@ -96,9 +109,9 @@ body {
           size="45"
           color="grey lighten-4"
         >
-          <img :src="this.$store.getters.user.photoURL || ''" alt="avatar">
+          <img :src="photoURL" alt="avatar">
         </v-avatar>
-          <span class="username">{{this.$store.getters.user.displayName || ''}}</span>
+          <span class="username">{{displayName}}</span>
       <v-toolbar-items class="hidden-sm-and-down">
         <v-btn @click="logout" flat>Logout</v-btn>
       </v-toolbar-items>
@@ -129,7 +142,7 @@ body {
                   placeholder="model.mzn data.dzn"
                   :value="filesToSend"
                 ></v-text-field>
-                <v-btn @click="sendScript()" color="error">Send</v-btn>
+                <v-btn @click="sendScript()" color="error">Solve</v-btn>
               </v-flex>
             </v-layout>
             <p class="left-align">{{consoleBaseOutput}}</p>
@@ -214,13 +227,21 @@ output ["The resulting values are \\(x)."];
         'twilight',
         'vibrant_ink',
         'xcode'
-      ]
+      ],
+      photoURL: '',
+      displayName: ''
 		};
 	},
 	components: {
 		editor: require('vue2-ace-editor'),
 	},
 	methods: {
+    createFile() {
+
+    },
+    createProject() {
+
+    },
     selectTheme(theme){
       this.theme = theme
     },
@@ -304,12 +325,14 @@ output ["The resulting values are \\(x)."];
         self.$router.push({name: 'login'})
       })
     }
-	},
+  },
 	created() {
     const self = this;
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
         self.$store.dispatch('signIn', user)
+        self.photoURL = user.photoURL
+        self.displayName = user.displayName
       }
     });
 

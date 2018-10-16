@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-// import * as firebase from 'firebase'
+import * as firebase from 'firebase'
 
 Vue.use(Vuex)
 
@@ -17,15 +17,31 @@ export default new Vuex.Store({
   },
   actions: {
     signIn ({ commit }, payload) {
-      // todo determine if user has files, if so get them if not then create blank file state
-      const newPayload = {
-        displayName: payload.displayName,
-        email: payload.email,
-        photoURL: payload.photoURL,
-        uid: payload.uid,
-        files: []
-      }
-      commit('setUser', newPayload)
+      const users = initializeFirestore()
+      let userState
+      users
+        .doc(payload.uid)
+        .get()
+        .then(user => {
+          if (user.exists) {
+            console.log('Previously Logged in: ', user.data())
+            userState = user.data()
+          } else {
+            userState = {
+              displayName: payload.displayName,
+              email: payload.email,
+              photoURL: payload.photoURL,
+              uid: payload.uid,
+              projects: []
+            }
+            console.log('New user created: ', userState)
+            users.doc(payload.uid).set(userState)
+            commit('setUser', userState)
+          }
+        })
+        .catch(err => {
+          console.log('err: ', err)
+        })
     },
     logout ({ commit }, payload) {
       commit('setUser', {})
@@ -37,3 +53,10 @@ export default new Vuex.Store({
     }
   }
 })
+
+function initializeFirestore () {
+  const db = firebase.firestore()
+  const settings = { timestampsInSnapshots: true }
+  db.settings(settings)
+  return db.collection('users')
+}
