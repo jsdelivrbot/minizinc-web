@@ -7,9 +7,9 @@
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"backend": "nodemon server.js",
 		"start": "concurrently --kill-others \"nodemon server.js\" \"cd frontend && npm run dev\"",
-		"deploy-local": "run-s build-frontend deploy-frontend",
-		"build-frontend": "cd frontend && npm run build",
-		"deploy-frontend": "node server.js",
+		"deploy": "run-s fbuild fdeploy",
+		"fbuild": "cd frontend && npm run build",
+		"fdeploy": "node server.js",
 		"run-frontend": "cd frontend && npm run dev",
 		"postinstall": "cd frontend && npm install"
 	},
