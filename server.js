@@ -32,7 +32,7 @@ const db = require('./db.js');
 const apiRouter = require('./routes/api.js');
 app.use('/api', apiRouter);
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 30001;
 app.listen(port, () => {
 	console.log(`Listening on port  http://localhost:${port}`);
 });
