@@ -55,6 +55,10 @@ body {
 	margin-left: 20px;
 	margin-right: 20px;
 }
+
+.sidebar-input {
+	margin-left: 20px;
+}
 </style>
 
 <template>
@@ -70,20 +74,44 @@ body {
     >
       <v-list>
         <v-subheader class="sidebar-header">Projects
-          <v-btn fab dark small color="red" @click="createProject">
+          <v-btn fab dark small color="red" @click="showNewProject = !showNewProject">
             <v-icon dark>add</v-icon>
           </v-btn>
         </v-subheader>
-        <!-- <v-list-tile v-for="file in files" :key="file.name" @click="switchFile(file)">
-          <v-list-tile-title selected v-text="file.name"></v-list-tile-title>
-        </v-list-tile> -->
+        <v-layout row wrap>
+          <v-flex xs10 class="sidebar-input">
+            <v-text-field
+              label="New Project"
+              v-if="showNewProject"
+              @keyup.enter="createProject"
+              v-model="newProject"
+              autofocus
+              dark
+            ></v-text-field>
+          </v-flex>
+        </v-layout>
+        <v-list-tile v-for="project in projects" :key="project.name" @click="switchProject(project)">
+          <v-list-tile-title selected v-text="project.name"></v-list-tile-title>
+        </v-list-tile>
 
         <v-subheader class="sidebar-header">Files
-          <v-btn fab dark small color="red" @click="createFile">
+          <v-btn fab dark small color="red" @click="showNewFile = !showNewFile">
             <v-icon dark>add</v-icon>
           </v-btn>
         </v-subheader>
-        <v-list-tile v-for="file in files" :key="file.name" @click="switchFile(file)">
+        <v-layout row wrap>
+          <v-flex xs10 class="sidebar-input">
+            <v-text-field
+              label="New Project"
+              v-if="showNewFile"
+              @keyup.enter="createFile"
+              v-model="newFile"
+              autofocus
+              dark
+            ></v-text-field>
+          </v-flex>
+        </v-layout>
+        <v-list-tile v-for="file in selectedProject.files" :key="file.name" @click="switchFile(file)">
           <v-list-tile-title selected v-text="file.name"></v-list-tile-title>
         </v-list-tile>
       </v-list>
@@ -109,9 +137,9 @@ body {
           size="45"
           color="grey lighten-4"
         >
-          <img :src="photoURL" alt="avatar">
+          <img :src="currentUser.photoURL" alt="avatar">
         </v-avatar>
-          <span class="username">{{displayName}}</span>
+          <span class="username">{{currentUser.displayName}}</span>
       <v-toolbar-items class="hidden-sm-and-down">
         <v-btn @click="logout" flat>Logout</v-btn>
       </v-toolbar-items>
@@ -165,27 +193,13 @@ export default {
 	data: function() {
 		return {
 			drawerOpen: false,
-			currentFile: 'demo.mzn',
+			selectedFile: '',
       theme: 'vibrant_ink',
       flags: '--solver Gecode',
       filesToSend: 'model.mzn data.dzn',
       selectedFile: '',
-      files: [
-        {
-          name: 'model.mzn',
-          code: `int: n;
-array[1..n] of var 1..2*n: x;
-include "alldifferent.mzn";
-constraint alldifferent(x);
-solve maximize sum(x);
-output ["The resulting values are \\(x)."];
-`
-        },
-        {
-          name: 'data.dzn',
-          code: 'n = 5;'
-        }
-      ],
+      projects: null,
+      selectedProject: null,
       consoleBaseOutput: 'Console output will go here\n\n',
       consoleOutput: '',
       codeEntered: '',
@@ -228,37 +242,62 @@ output ["The resulting values are \\(x)."];
         'vibrant_ink',
         'xcode'
       ],
-      photoURL: '',
-      displayName: ''
+      showNewProject: false,
+      newProject: '',
+      newFile: '',
+      showNewFile: false,
+      currentUser: {
+        photoURL: '',
+        displayName: ''
+      }
 		};
 	},
 	components: {
 		editor: require('vue2-ace-editor'),
 	},
 	methods: {
-    createFile() {
-
-    },
     createProject() {
-
+      this.showNewProject = false
+      const newProject = {
+        name : this.newProject,
+        owner: this.currentUser.email,
+        files: []
+      }
+      this.projects.push(newProject)
+      this.newProject = ''
+      //todo reflect new project in database
+      //todo reflect files on node server
+    },
+    createFile() {
+      this.showNewFile = false
+      const file = {
+        name: this.newFile,
+        code: ''
+      }
+      this.selectedProject.files.push(file)
+      this.newFile = ''
+      this.switchFile(file)
     },
     selectTheme(theme){
       this.theme = theme
     },
     switchFile(file) {
-      this.saveCurrentFile()
+      // this.saveselectedFile()
       this.selectedFile = file.name
       this.codeEntered = file.code
       this.drawerOpen = false
     },
-    saveCurrentFile() {
+    switchProject(project) {
+      console.log('project: ', project);
+    },
+    saveselectedFile() {
       for(let f of this.files){
         if (f.name === this.selectedFile) f.code = this.codeEntered
       }
     },
     sendScript(){
       this.consoleOutput = 'Loading...'
-      this.saveCurrentFile()
+      this.saveselectedFile()
       let self = this;
       let tempFiles = [];
       for (let file of self.files) {
@@ -331,13 +370,37 @@ output ["The resulting values are \\(x)."];
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
         self.$store.dispatch('signIn', user)
-        self.photoURL = user.photoURL
-        self.displayName = user.displayName
+        self.currentUser = user
       }
     });
 
-    this.codeEntered = this.files[0].code
-    this.selectedFile = this.files[0].name
+    if (!this.projects) {
+      this.projects = [
+        {
+          name: 'Test project',
+          owner: 'harrison.thomas04@gmail.com',
+          files: [
+            {
+              name: 'model.mzn',
+              code: `int: n;
+array[1..n] of var 1..2*n: x;
+include "alldifferent.mzn";
+constraint alldifferent(x);
+solve maximize sum(x);
+output ["The resulting values are \\(x)."];
+`
+            },
+            {
+              name: 'data.dzn',
+              code: 'n = 5;'
+            }
+        ]
+      }]
+    }
+
+    this.selectedProject = this.projects[0];
+    this.codeEntered = this.selectedProject.files[0].code
+    this.selectedFile = this.selectedProject.files[0].name
     this.loadAllThemes()
   },
 };
