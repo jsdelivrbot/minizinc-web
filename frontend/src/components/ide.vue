@@ -71,6 +71,7 @@ body {
       v-model="drawerOpen"
       clipped
       app
+      disable-resize-watcher
     >
       <v-list>
         <v-subheader class="sidebar-header">Projects
@@ -91,10 +92,11 @@ body {
           </v-flex>
         </v-layout>
         <v-list-tile v-for="project in projects" :key="project.name" @click="switchProject(project)">
-          <v-list-tile-title selected v-text="project.name"></v-list-tile-title>
+          <v-list-tile-title
+          v-text="project.name"></v-list-tile-title>
         </v-list-tile>
 
-        <v-subheader class="sidebar-header">Files
+        <v-subheader class="sidebar-header">Files in {{selectedProject.name}}
           <v-btn fab dark small color="red" @click="showNewFile = !showNewFile">
             <v-icon dark>add</v-icon>
           </v-btn>
@@ -112,7 +114,8 @@ body {
           </v-flex>
         </v-layout>
         <v-list-tile v-for="file in selectedProject.files" :key="file.name" @click="switchFile(file)">
-          <v-list-tile-title selected v-text="file.name"></v-list-tile-title>
+          <v-list-tile-title
+          v-text="file.name"></v-list-tile-title>
         </v-list-tile>
       </v-list>
       <v-select
@@ -160,7 +163,7 @@ body {
                   class="inputs"
                   label="Flags"
                   placeholder="--solver Gecode"
-                  :value="flags"
+                  v-model="flags"
                 ></v-text-field>
               </v-flex>
               <v-flex xs5>
@@ -168,12 +171,18 @@ body {
                   class="inputs"
                   label="Files"
                   placeholder="model.mzn data.dzn"
-                  :value="filesToSend"
+                  v-model="filesToSend"
                 ></v-text-field>
                 <v-btn @click="sendScript()" color="error">Solve</v-btn>
               </v-flex>
             </v-layout>
             <p class="left-align">{{consoleBaseOutput}}</p>
+                <v-progress-circular
+                  center
+                  indeterminate
+                  color="red"
+                  v-if="loading"
+                ></v-progress-circular>
             <p class="left-align">{{consoleOutput}}</p>
           </v-flex>
         </v-layout>
@@ -193,7 +202,6 @@ export default {
 	data: function() {
 		return {
 			drawerOpen: false,
-			selectedFile: '',
       theme: 'vibrant_ink',
       flags: '--solver Gecode',
       filesToSend: 'model.mzn data.dzn',
@@ -249,7 +257,8 @@ export default {
       currentUser: {
         photoURL: '',
         displayName: ''
-      }
+      },
+      loading: false
 		};
 	},
 	components: {
@@ -282,28 +291,49 @@ export default {
       this.theme = theme
     },
     switchFile(file) {
-      // this.saveselectedFile()
+      this.saveSelectedFile()
       this.selectedFile = file.name
       this.codeEntered = file.code
       this.drawerOpen = false
     },
     switchProject(project) {
       console.log('project: ', project);
+      this.saveSelectedFile()
+      this.projects.forEach(p => {
+        if (p.name === project.name) {
+          this.selectedProject = project
+        }
+      })
+      if (this.selectedProject.files.length <= 0) {
+        this.selectedFile = `Please create a file to start with this project`
+        this.codeEntered = ''
+      }
+      else {
+        this.selectedFile = this.selectedProject.files[0].name
+        this.codeEntered = this.selectedProject.files[0].code
+      }
+
     },
-    saveselectedFile() {
-      for(let f of this.files){
+    saveSelectedFile() {
+      for(let f of this.selectedProject.files){
         if (f.name === this.selectedFile) f.code = this.codeEntered
       }
     },
     sendScript(){
-      this.consoleOutput = 'Loading...'
-      this.saveselectedFile()
+      this.loading = true
+      this.consoleOutput = ''
+      this.saveSelectedFile()
       let self = this;
       let tempFiles = [];
-      for (let file of self.files) {
+      for (let file of self.selectedProject.files) {
         if (self.filesToSend.indexOf(file.name) > -1) {
           tempFiles.push(file)
         }
+      }
+      if (tempFiles.length <= 0){
+        self.consoleOutput = `Couldn't find any files that you specified.`
+        this.loading = false
+        return
       }
 
       axiosBase()
@@ -315,6 +345,7 @@ export default {
           let response = res.data.replace(/-/g, '');
           response = response.replace(/=/g, '');
           self.consoleOutput = response;
+          this.loading = false
         });
     },
 		loadAllThemes() {
