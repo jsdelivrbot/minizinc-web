@@ -40,7 +40,7 @@ router.post('/run-zinc', (req, res) => {
 			console.log('error', err);
 		}
 		tmpFiles.forEach(file => {
-			fs.unlink(file, () => {});
+			fs.unlink(file, () => {}); // delete files after computation
 		});
 	});
 });
