@@ -195,7 +195,9 @@ body {
 <script>
 /* eslint-disable */
 import firebase from 'firebase'
-import axiosBase from '../../utils/requestBase';
+// import axiosBase from '../../utils/requestBase';
+import axios from 'axios'
+
 
 export default {
   name: 'ide',
@@ -335,9 +337,15 @@ export default {
         this.loading = false
         return
       }
+      let url
+      if (window.location.href === 'http://localhost:8080/#/') {
+        url = 'http://localhost:30001/api/run-zinc'
+      } else {
+        url = '/api/run-zinc'
+      }
 
-      axiosBase()
-        .post('/api/run-zinc', {
+      axios
+        .post(url, {
           flags: self.flags.split(' '),
           files: tempFiles
         })
