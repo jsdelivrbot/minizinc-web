@@ -39,6 +39,9 @@ router.post('/run-zinc', (req, res) => {
 		} else {
 			console.log('error', err);
 		}
+		tmpFiles.forEach(file => {
+			fs.unlink(file, () => {});
+		});
 	});
 });
 
