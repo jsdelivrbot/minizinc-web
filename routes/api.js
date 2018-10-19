@@ -22,7 +22,8 @@ router.post('/run-zinc', (req, res) => {
 	for (let file of files) {
 		fs.writeFile(`./tmp/${file.name}`, file.code, function(err) {
 			if (err) {
-				res.send(err);
+				console.log('err: ', err);
+				// res.send(err);
 			}
 		});
 		tmpFiles.push(`./tmp/${file.name}`);
