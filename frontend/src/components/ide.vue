@@ -216,6 +216,21 @@ body {
         </v-layout>
       </v-container>
     </v-content>
+    <v-snackbar
+        v-model="snackbar"
+        color="error"
+        timeout="6000"
+        bottom
+      >
+        {{ snackbarText }}
+        <v-btn
+          dark
+          flat
+          @click="snackbar = false"
+        >
+          Undo
+        </v-btn>
+      </v-snackbar>
   </v-app>
   </div>
 </template>
@@ -288,7 +303,9 @@ export default {
         photoURL: '',
         displayName: ''
       },
-      loading: false
+      loading: false,
+      snackbar: false,
+      snackbarText: ''
 		};
 	},
 	components: {
@@ -328,6 +345,8 @@ export default {
       if (autoClose) this.drawerOpen = false
     },
     deleteFile(file, index) {
+      this.snackbarText = `"${file.name}" deleted.`
+      this.snackbar = true
       this.selectedProject.files.splice(index, 1)
       if (this.selectedProject.files.length >= 1) {
         this.switchFile(this.selectedProject.files[0], false)
@@ -339,6 +358,8 @@ export default {
       this.drawerOpen = true
     },
     deleteProject(project, index) {
+      this.snackbarText = `"${project.name}" deleted.`
+      this.snackbar = true
       this.projects.splice(index, 1)
       if (this.projects.length >= 1) {
         this.switchProject(this.projects[0])
