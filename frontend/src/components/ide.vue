@@ -11,6 +11,10 @@
 	font-size: 24px;
 	margin-top: 30px;
 }
+.files-header {
+	font-size: 18px;
+	margin-top: 30px;
+}
 
 body {
 	/* overflow: hidden; */
@@ -59,6 +63,23 @@ body {
 .sidebar-input {
 	margin-left: 20px;
 }
+
+.clickable {
+	cursor: pointer;
+}
+
+.plus-button {
+	position: fixed;
+	right: 0;
+	margin-right: 25px;
+}
+
+.theme-selector {
+	position: fixed;
+	bottom: 0;
+	margin-bottom: 100px;
+	width: 90%;
+}
 </style>
 
 <template>
@@ -75,7 +96,7 @@ body {
     >
       <v-list>
         <v-subheader class="sidebar-header">Projects
-          <v-btn fab dark small color="red" @click="showNewProject = !showNewProject">
+          <v-btn fab fixed dark small color="red" @click="showNewProject = !showNewProject" class="plus-button">
             <v-icon dark>add</v-icon>
           </v-btn>
         </v-subheader>
@@ -91,13 +112,16 @@ body {
             ></v-text-field>
           </v-flex>
         </v-layout>
-        <v-list-tile v-for="project in projects" :key="project.name" @click="switchProject(project)">
+        <v-list-tile v-for="(project, index) in projects" :key="project.name" @click="switchProject(project)">
           <v-list-tile-title
           v-text="project.name"></v-list-tile-title>
+          <v-btn fab dark flat small color="red" @click.stop="switchProject" @click="deleteProject(project, index)">
+            <v-icon dark>delete</v-icon>
+          </v-btn>
         </v-list-tile>
 
-        <v-subheader class="sidebar-header">Files in "{{selectedProject.name}}"
-          <v-btn fab dark small color="red" @click="showNewFile = !showNewFile">
+        <v-subheader style="text-align: left;" v-if="projects.length > 0" class="sidebar-header files-header">Files in "{{selectedProject.name}}"
+          <v-btn fab fixed dark small color="red" @click="showNewFile = !showNewFile" class="plus-button">
             <v-icon dark>add</v-icon>
           </v-btn>
         </v-subheader>
@@ -113,10 +137,13 @@ body {
             ></v-text-field>
           </v-flex>
         </v-layout>
-        <v-list-tile v-for="file in selectedProject.files" :key="file.name" @click="switchFile(file)">
-          <v-list-tile-title
-          v-text="file.name"></v-list-tile-title>
-        </v-list-tile>
+          <v-list-tile v-for="(file, index) in selectedProject.files" :key="file.name" class="clickable" @click="switchFile(file)">
+            <v-list-tile-title
+            v-text="file.name"></v-list-tile-title>
+          <v-btn fab dark flat small color="red" @click.stop="switchFile" @click="deleteFile(file, index)">
+            <v-icon dark>delete</v-icon>
+          </v-btn>
+          </v-list-tile>
         <v-subheader v-if="selectedProject.files.length <= 0">No files exist yet. Create one!</v-subheader>
       </v-list>
       <v-select
@@ -124,6 +151,8 @@ body {
         label="Select Theme"
         outline
         v-on:change="selectTheme"
+        class="theme-selector"
+        fixed
       ></v-select>
     </v-navigation-drawer>
     <v-toolbar
@@ -294,11 +323,35 @@ export default {
     selectTheme(theme){
       this.theme = theme
     },
-    switchFile(file) {
+    switchFile(file, autoClose = true) {
       this.saveSelectedFile()
       this.selectedFile = file.name
       this.codeEntered = file.code
-      this.drawerOpen = false
+      if (autoClose) this.drawerOpen = false
+    },
+    deleteFile(file, index) {
+      this.selectedProject.files.splice(index, 1)
+      if (this.selectedProject.files.length >= 1) {
+        this.switchFile(this.selectedProject.files[0], false)
+      }
+      else {
+        this.selectedFile = `Please create a file to start with "${this.selectedProject.name}".`
+        this.codeEntered = ''
+      }
+      this.drawerOpen = true
+    },
+    deleteProject(project, index) {
+      this.projects.splice(index, 1)
+      if (this.projects.length >= 1) {
+        this.switchProject(this.projects[0])
+      }
+      else {
+        this.selectedProject.files = []
+        this.selectedProject.name = ''
+        this.selectedFile = `Please create a project to get started.`
+        this.codeEntered = ''
+      }
+      this.drawerOpen = true
     },
     switchProject(project) {
       console.log('project: ', project);
@@ -433,7 +486,7 @@ output ["The resulting values are \\(x)."];
             },
             {
               name: 'data.dzn',
-              code: 'n = 5;'
+              code: 'n = 9;'
             }
         ]
       }]
