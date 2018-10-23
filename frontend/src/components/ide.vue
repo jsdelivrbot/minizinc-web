@@ -1,86 +1,85 @@
 <style>
-  #ide {
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-  }
+#ide {
+	font-family: 'Avenir', Helvetica, Arial, sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-align: center;
+	color: #2c3e50;
+}
 
-  .sidebar-header {
-    font-size: 24px;
-    margin-top: 30px;
-  }
+.sidebar-header {
+	font-size: 24px;
+	margin-top: 30px;
+}
 
-  .files-header {
-    font-size: 18px;
-    margin-top: 30px;
-  }
+.files-header {
+	font-size: 18px;
+	margin-top: 30px;
+}
 
-  body {
-    /* overflow: hidden; */
-    margin: 0;
-    background-color: white;
-  }
+body {
+	/* overflow: hidden; */
+	margin: 0;
+	background-color: white;
+}
 
-  #editor {
-    margin: 0;
-    left: 0;
-    height: 100vh;
-    width: 80vh;
-    font-size: 20px;
-    /* margin-top: 20px; */
-  }
+#editor {
+	margin: 0;
+	left: 0;
+	height: 100vh;
+	width: 80vh;
+	font-size: 20px;
+	/* margin-top: 20px; */
+}
 
-  .remove-margin {
-    margin: 0 !important;
-    padding: 0 !important;
-  }
+.remove-margin {
+	margin: 0 !important;
+	padding: 0 !important;
+}
 
-  .left-align {
-    font-size: 15px;
-    text-align: left;
-    padding-top: 20px;
-    margin-left: 15px;
-  }
+.left-align {
+	font-size: 15px;
+	text-align: left;
+	padding-top: 20px;
+	margin-left: 15px;
+}
 
-  .inputs {
-    margin-left: 10px;
-    margin-top: 20px;
-    width: 90%;
-    font-family: Consolas, monaco, monospace;
-  }
+.inputs {
+	margin-left: 10px;
+	margin-top: 20px;
+	width: 90%;
+	font-family: Consolas, monaco, monospace;
+}
 
-  .code-text {
-    font-family: Consolas, monaco, monospace;
-  }
+.code-text {
+	font-family: Consolas, monaco, monospace;
+}
 
-  .custom-container {
-    margin: 0;
-    padding: 0;
-    margin-top: 10px;
-  }
+.custom-container {
+	margin: 0;
+	padding: 0;
+	margin-top: 10px;
+}
 
-  .username {
-    margin-left: 20px;
-    margin-right: 20px;
-  }
+.username {
+	margin-left: 20px;
+	margin-right: 20px;
+}
 
-  .sidebar-input {
-    margin-left: 20px;
-  }
+.sidebar-input {
+	margin-left: 20px;
+}
 
-  .clickable {
-    cursor: pointer;
-  }
+.clickable {
+	cursor: pointer;
+}
 
-  .theme-selector {
-    position: fixed;
-    bottom: 0;
-    margin-bottom: 100px;
-    width: 90%;
-  }
-
+.theme-selector {
+	position: fixed;
+	bottom: 0;
+	margin-bottom: 100px;
+	width: 90%;
+}
 </style>
 
 <template>
@@ -171,9 +170,9 @@
           </v-layout>
         </v-container>
       </v-content>
-      <v-snackbar v-model="snackbar" color="error" timeout="6000" bottom>
+      <v-snackbar v-model="snackbar" color="error" :timeout="6000" bottom>
         {{ snackbarText }}
-        <v-btn dark flat @click="snackbar = false">
+        <v-btn dark flat @click="undoDelete()">
           Undo
         </v-btn>
       </v-snackbar>
@@ -251,7 +250,8 @@
         },
         loading: false,
         snackbar: false,
-        snackbarText: ''
+        snackbarText: '',
+        deletionStack: [],
       };
     },
     components: {
@@ -290,9 +290,25 @@
         this.codeEntered = file.code
         if (autoClose) this.drawerOpen = false
       },
+      undoDelete() {
+        this.snackbar = false
+        const item = this.deletionStack.pop()
+        item.canceled = true
+        if (item.files) {
+          this.projects.push(item)
+          this.switchProject(item)
+        }
+        else {
+          this.selectedProject.files.push(item)
+          this.switchFile(item)
+        }
+      },
       deleteFile(file, index) {
         this.snackbarText = `"${file.name}" deleted.`
         this.snackbar = true
+        this.deletionStack.push({...file, canceled: false})
+        this.queueDeletion()
+
         this.selectedProject.files.splice(index, 1)
         if (this.selectedProject.files.length >= 1) {
           this.switchFile(this.selectedProject.files[0], false)
@@ -305,6 +321,9 @@
       deleteProject(project, index) {
         this.snackbarText = `"${project.name}" deleted.`
         this.snackbar = true
+        this.deletionStack.push({...project, canceled: false})
+        this.queueDeletion()
+
         this.projects.splice(index, 1)
         if (this.projects.length >= 1) {
           this.switchProject(this.projects[0])
@@ -315,6 +334,13 @@
           this.codeEntered = ''
         }
         this.drawerOpen = true
+      },
+      queueDeletion(){
+        setTimeout(() => {
+          this.deletionStack.forEach(item => {
+            //todo delete item in database
+          })
+        }, 6000)
       },
       switchProject(project) {
         console.log('project: ', project);
@@ -436,8 +462,10 @@
         this.projects = [{
           name: 'Test project',
           owner: 'harrison.thomas04@gmail.com',
+          uid: 'abc',
           files: [{
               name: 'model.mzn',
+              uid: 'bcxa',
               code: `int: n;
   array[1..n] of var 1..2*n: x;
   include "alldifferent.mzn";
@@ -448,6 +476,7 @@
             },
             {
               name: 'data.dzn',
+              uid: 'qwer',
               code: 'n = 9;'
             }
           ]
