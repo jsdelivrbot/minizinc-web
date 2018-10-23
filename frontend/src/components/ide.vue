@@ -96,7 +96,7 @@ body {
           v-text="project.name"></v-list-tile-title>
         </v-list-tile>
 
-        <v-subheader class="sidebar-header">Files in {{selectedProject.name}}
+        <v-subheader class="sidebar-header">Files in "{{selectedProject.name}}"
           <v-btn fab dark small color="red" @click="showNewFile = !showNewFile">
             <v-icon dark>add</v-icon>
           </v-btn>
@@ -117,6 +117,7 @@ body {
           <v-list-tile-title
           v-text="file.name"></v-list-tile-title>
         </v-list-tile>
+        <v-subheader v-if="selectedProject.files.length <= 0">No files exist yet. Create one!</v-subheader>
       </v-list>
       <v-select
         :items="themes"
@@ -276,6 +277,7 @@ export default {
       }
       this.projects.push(newProject)
       this.newProject = ''
+      this.switchProject(newProject)
       //todo reflect new project in database
       //todo reflect files on node server
     },
@@ -307,7 +309,7 @@ export default {
         }
       })
       if (this.selectedProject.files.length <= 0) {
-        this.selectedFile = `Please create a file to start with this project`
+        this.selectedFile = `Please create a file to start with "${project.name}".`
         this.codeEntered = ''
       }
       else {
