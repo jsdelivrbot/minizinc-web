@@ -68,12 +68,6 @@ body {
 	cursor: pointer;
 }
 
-.plus-button {
-	position: fixed;
-	right: 0;
-	margin-right: 25px;
-}
-
 .theme-selector {
 	position: fixed;
 	bottom: 0;
@@ -96,7 +90,7 @@ body {
     >
       <v-list>
         <v-subheader class="sidebar-header">Projects
-          <v-btn fab fixed dark small color="red" @click="showNewProject = !showNewProject" class="plus-button">
+          <v-btn fab fixed right dark small color="red" @click="showNewProject = !showNewProject">
             <v-icon dark>add</v-icon>
           </v-btn>
         </v-subheader>
@@ -115,13 +109,13 @@ body {
         <v-list-tile v-for="(project, index) in projects" :key="project.name" @click="switchProject(project)">
           <v-list-tile-title
           v-text="project.name"></v-list-tile-title>
-          <v-btn fab dark flat small color="red" @click.stop="switchProject" @click="deleteProject(project, index)">
+          <v-btn fab dark fixed right flat small color="red" @click.stop="switchProject" @click="deleteProject(project, index)">
             <v-icon dark>delete</v-icon>
           </v-btn>
         </v-list-tile>
 
         <v-subheader style="text-align: left;" v-if="projects.length > 0" class="sidebar-header files-header">Files in "{{selectedProject.name}}"
-          <v-btn fab fixed dark small color="red" @click="showNewFile = !showNewFile" class="plus-button">
+          <v-btn fab fixed right dark small color="red" @click="showNewFile = !showNewFile">
             <v-icon dark>add</v-icon>
           </v-btn>
         </v-subheader>
@@ -140,7 +134,7 @@ body {
           <v-list-tile v-for="(file, index) in selectedProject.files" :key="file.name" class="clickable" @click="switchFile(file)">
             <v-list-tile-title
             v-text="file.name"></v-list-tile-title>
-          <v-btn fab dark flat small color="red" @click.stop="switchFile" @click="deleteFile(file, index)">
+          <v-btn fab dark fixed right flat small color="red" @click.stop="switchFile" @click="deleteFile(file, index)">
             <v-icon dark>delete</v-icon>
           </v-btn>
           </v-list-tile>
