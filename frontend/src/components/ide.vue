@@ -25,9 +25,10 @@ body {
 #editor {
 	margin: 0;
 	left: 0;
-	height: 100%;
+	height: 100vh;
 	width: 80vh;
 	font-size: 20px;
+	/* margin-top: 20px; */
 }
 
 .remove-margin {
@@ -38,11 +39,13 @@ body {
 .left-align {
 	font-size: 15px;
 	text-align: left;
-	margin-top: 20px;
+	padding-top: 20px;
+	margin-left: 15px;
 }
 
 .inputs {
 	margin-left: 10px;
+	margin-top: 20px;
 	width: 90%;
 	font-family: Consolas, monaco, monospace;
 }
@@ -113,6 +116,7 @@ body {
             <v-icon dark>delete</v-icon>
           </v-btn>
         </v-list-tile>
+        <v-subheader v-if="projects.length <= 0 && !showNewProject">No projects exist. Create one!</v-subheader>
 
         <v-subheader style="text-align: left;" v-if="projects.length > 0" class="sidebar-header files-header">Files in "{{selectedProject.name}}"
           <v-btn fab fixed right dark small color="red" @click="showNewFile = !showNewFile">
@@ -138,7 +142,7 @@ body {
             <v-icon dark>delete</v-icon>
           </v-btn>
           </v-list-tile>
-        <v-subheader v-if="selectedProject.files.length <= 0">No files exist yet. Create one!</v-subheader>
+        <v-subheader v-if="selectedProject.files.length <= 0 && projects.length > 0 && !showNewFile">No files exist yet. Create one!</v-subheader>
       </v-list>
       <v-select
         :items="themes"
