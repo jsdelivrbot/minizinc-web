@@ -196,8 +196,7 @@ body {
         flags: '--solver Gecode',
         filesToSend: 'model.mzn data.dzn',
         selectedFile: '',
-        projects: null,
-        selectedProject: null,
+        selectedProject: {},
         consoleBaseOutput: 'Console output will go here\n\n',
         consoleOutput: '',
         codeEntered: '',
@@ -451,43 +450,25 @@ body {
     },
     created() {
       const self = this;
-      firebase.auth().onAuthStateChanged(function (user) {
+      firebase.auth().onAuthStateChanged(user => {
         if (user) {
           self.$store.dispatch('signIn', user)
           self.currentUser = user
+          self.$store.dispatch('initRealtimeListeners')
         }
       });
 
-      if (!this.projects) {
-        this.projects = [{
-          name: 'Test project',
-          owner: 'harrison.thomas04@gmail.com',
-          uid: 'abc',
-          files: [{
-              name: 'model.mzn',
-              uid: 'bcxa',
-              code: `int: n;
-  array[1..n] of var 1..2*n: x;
-  include "alldifferent.mzn";
-  constraint alldifferent(x);
-  solve maximize sum(x);
-  output ["The resulting values are \\(x)."];
-  `
-            },
-            {
-              name: 'data.dzn',
-              uid: 'qwer',
-              code: 'n = 9;'
-            }
-          ]
-        }]
-      }
 
-      this.selectedProject = this.projects[0];
-      this.codeEntered = this.selectedProject.files[0].code
-      this.selectedFile = this.selectedProject.files[0].name
+      // this.selectedProject = this.projects[0];
+      // this.codeEntered = this.selectedProject.files[0].code
+      // this.selectedFile = this.selectedProject.files[0].name
       this.loadAllThemes()
     },
+    computed: {
+      projects() {
+        return this.$store.getters.projects;
+      }
+    }
   };
 
 </script>
