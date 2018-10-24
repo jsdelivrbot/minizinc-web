@@ -21,7 +21,7 @@ export default new Vuex.Store({
       const testProjects = [
         {
           name: 'Test project',
-          owner: payload.email,
+          owner: user.email,
           uid: 'abc',
           files: [
             {
@@ -62,7 +62,7 @@ export default new Vuex.Store({
       const index = state.projects.findIndex(project => project.uid === uid)
       state.projects.splice(index, 1)
     },
-    setProjectState (state, projects) {
+    setProjects (state, projects) {
       state.projects = projects
     }
   },
@@ -93,8 +93,9 @@ export default new Vuex.Store({
           console.log('err: ', err)
         })
     },
-    logout ({ commit }, payload) {
+    logout ({ commit }) {
       commit('setUser', {})
+      commit('setProjects', [])
     },
     initRealtimeListeners (context) {
       const projects = getCollection('projects')
@@ -128,7 +129,10 @@ export default new Vuex.Store({
     addProject (context, payload) {
       getCollection('projects')
         .doc()
-        .update({ ...payload, timestamp: new Date() })
+        .update({
+          ...payload,
+          timestamp: new Date()
+        })
         .then(project => {
           context.commit('addProject', project)
         })
@@ -136,7 +140,9 @@ export default new Vuex.Store({
     updateProject (context, payload) {
       getCollection('projects')
         .doc(payload.uid)
-        .set(payload, { merge: true })
+        .set(payload, {
+          merge: true
+        })
         .then(() => {
           context.commit('updateProject', payload)
         })
@@ -158,7 +164,7 @@ export default new Vuex.Store({
           snapshot.forEach(doc => {
             projects.push(doc.data())
           })
-          context.commit('setProjectState', projects)
+          context.commit('setProjects', projects)
         })
     }
   },
@@ -174,7 +180,9 @@ export default new Vuex.Store({
 
 function getCollection (collection) {
   const db = firebase.firestore()
-  const settings = { timestampsInSnapshots: true }
+  const settings = {
+    timestampsInSnapshots: true
+  }
   db.settings(settings)
   return db.collection(collection)
 }

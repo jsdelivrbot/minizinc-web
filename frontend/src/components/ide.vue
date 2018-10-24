@@ -196,7 +196,7 @@ body {
         flags: '--solver Gecode',
         filesToSend: 'model.mzn data.dzn',
         selectedFile: '',
-        selectedProject: {},
+        selectedProject: this.firstProject,
         consoleBaseOutput: 'Console output will go here\n\n',
         consoleOutput: '',
         codeEntered: '',
@@ -454,19 +454,21 @@ body {
         if (user) {
           self.$store.dispatch('signIn', user)
           self.currentUser = user
+          self.$store.dispatch('getProjects')
           self.$store.dispatch('initRealtimeListeners')
+          self.switchProject(self.projects[0])
         }
       });
 
 
-      // this.selectedProject = this.projects[0];
-      // this.codeEntered = this.selectedProject.files[0].code
-      // this.selectedFile = this.selectedProject.files[0].name
       this.loadAllThemes()
     },
     computed: {
       projects() {
         return this.$store.getters.projects;
+      },
+      firstProject() {
+        return this.projects[0]
       }
     }
   };
