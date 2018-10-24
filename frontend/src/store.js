@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import * as firebase from 'firebase'
+import { resolve } from 'path'
 
 Vue.use(Vuex)
 
@@ -16,38 +17,6 @@ export default new Vuex.Store({
       getCollection('users')
         .doc(payload.uid)
         .set(payload)
-    },
-    initNewProjects (user) {
-      const testProjects = [
-        {
-          name: 'Test project',
-          owner: user.email,
-          uid: 'abc',
-          files: [
-            {
-              name: 'model.mzn',
-              uid: 'bcxa',
-              code: `int: n;
-  array[1..n] of var 1..2*n: x;
-  include "alldifferent.mzn";
-  constraint alldifferent(x);
-  solve maximize sum(x);
-  output ["The resulting values are \\(x)."];
-  `
-            },
-            {
-              name: 'data.dzn',
-              uid: 'qwer',
-              code: 'n = 9;'
-            }
-          ]
-        }
-      ]
-      const projectsRef = getCollection('projects').doc()
-      return projectsRef.update({
-        owner: user.email,
-        projects: testProjects
-      })
     },
     addProject (state, project) {
       state.projects.push(project)
@@ -85,7 +54,34 @@ export default new Vuex.Store({
               uid: payload.uid
             }
             console.log('New user created: ', userState)
-            commit('initNewProjects', userState)
+            const newUserProject = {
+              name: 'Test project',
+              owner: payload.email,
+              uid: ID(),
+              files: [
+                {
+                  name: 'model.mzn',
+                  uid: ID(),
+                  code: `int: n;
+  array[1..n] of var 1..2*n: x;
+  include "alldifferent.mzn";
+  constraint alldifferent(x);
+  solve maximize sum(x);
+  output ["The resulting values are \\(x)."];
+  `
+                },
+                {
+                  name: 'data.dzn',
+                  uid: ID(),
+                  code: 'n = 9;'
+                }
+              ]
+            }
+            getCollection('projects')
+              .add(newUserProject)
+              .then(project => {
+                commit('setProjects', [project])
+              })
           }
           commit('setUser', userState)
         })
@@ -97,34 +93,32 @@ export default new Vuex.Store({
       commit('setUser', {})
       commit('setProjects', [])
     },
-    initRealtimeListeners (context) {
+    initRealtimeListeners (context, user) {
       const projects = getCollection('projects')
-      projects
-        .where('owner', '==', context.state.user.email)
-        .onSnapshot(snapshot => {
-          snapshot.docChanges().forEach(change => {
-            const source = change.doc.metadata.hasPendingWrites
-              ? 'Local'
-              : 'Server'
-            if (change.type === 'added' && source === 'Server') {
-              const payload = change.doc.data()
-              context.commit('addProject', {
-                uid: payload.uid,
-                name: payload.name,
-                owner: payload.owner,
-                files: payload.files
-              })
-            }
-            if (change.type === 'modified' && source === 'Server') {
-              const payload = change.doc.data()
-              context.commit('updateProject', payload)
-            }
-            if (change.type === 'removed' && source === 'Server') {
-              const payload = change.doc.data()
-              context.commit('deleteProject', payload.uid)
-            }
-          })
+      projects.where('owner', '==', user.email).onSnapshot(snapshot => {
+        snapshot.docChanges().forEach(change => {
+          const source = change.doc.metadata.hasPendingWrites
+            ? 'Local'
+            : 'Server'
+          if (change.type === 'added' && source === 'Server') {
+            const payload = change.doc.data()
+            context.commit('addProject', {
+              uid: payload.uid,
+              name: payload.name,
+              owner: payload.owner,
+              files: payload.files
+            })
+          }
+          if (change.type === 'modified' && source === 'Server') {
+            const payload = change.doc.data()
+            context.commit('updateProject', payload)
+          }
+          if (change.type === 'removed' && source === 'Server') {
+            const payload = change.doc.data()
+            context.commit('deleteProject', payload.uid)
+          }
         })
+      })
     },
     addProject (context, payload) {
       getCollection('projects')
@@ -155,14 +149,16 @@ export default new Vuex.Store({
           context.commit('deleteProject', uid)
         })
     },
-    getProjects (context) {
+    getProjects (context, user) {
+      console.log('user.email: ', user.email)
       getCollection('projects')
-        .where('owner', '==', context.state.user.email)
+        .where('owner', '==', user.email)
         .get()
         .then(snapshot => {
           let projects = []
+          console.log('snapshot: ', snapshot)
           snapshot.forEach(doc => {
-            projects.push(doc.data())
+            if (!contains(projects, doc.data())) projects.push(doc.data())
           })
           context.commit('setProjects', projects)
         })
@@ -173,7 +169,13 @@ export default new Vuex.Store({
       return state.user
     },
     projects (state) {
-      return state.projects
+      const noneFound = [
+        {
+          name: 'No projects found',
+          files: []
+        }
+      ]
+      return state.projects || noneFound
     }
   }
 })
@@ -185,4 +187,20 @@ function getCollection (collection) {
   }
   db.settings(settings)
   return db.collection(collection)
+}
+
+function contains (list, item) {
+  list.forEach(obj => {
+    if (obj.uid === item.uid) return true
+  })
+  return false
+}
+
+function ID () {
+  return (
+    '_' +
+    Math.random()
+      .toString(36)
+      .substr(2, 9)
+  )
 }

@@ -127,7 +127,7 @@ body {
           <v-subheader v-if="selectedProject.files.length <= 0 && projects.length > 0 && !showNewFile">No files exist
             yet. Create one!</v-subheader>
         </v-list>
-        <v-select :items="themes" label="Select Theme" outline v-on:change="selectTheme" class="theme-selector" fixed></v-select>
+        <v-select :items="themes" label="Select Theme" outline v-on:change="selectTheme" class="theme-selector"></v-select>
       </v-navigation-drawer>
       <v-toolbar color="red" fixed app>
         <v-toolbar-side-icon @click.stop="drawerOpen = !drawerOpen"></v-toolbar-side-icon>
@@ -196,7 +196,10 @@ body {
         flags: '--solver Gecode',
         filesToSend: 'model.mzn data.dzn',
         selectedFile: '',
-        selectedProject: this.firstProject,
+        selectedProject: {
+          name: 'No projects found',
+          files: []
+        },
         consoleBaseOutput: 'Console output will go here\n\n',
         consoleOutput: '',
         codeEntered: '',
@@ -342,7 +345,6 @@ body {
         }, 6000)
       },
       switchProject(project) {
-        console.log('project: ', project);
         this.saveSelectedFile()
         this.projects.forEach(p => {
           if (p.name === project.name) {
@@ -359,6 +361,7 @@ body {
 
       },
       saveSelectedFile() {
+        if(!this.selectedProject || !this.selectedProject.files) return
         for (let f of this.selectedProject.files) {
           if (f.name === this.selectedFile) f.code = this.codeEntered
         }
@@ -454,9 +457,17 @@ body {
         if (user) {
           self.$store.dispatch('signIn', user)
           self.currentUser = user
-          self.$store.dispatch('getProjects')
-          self.$store.dispatch('initRealtimeListeners')
-          self.switchProject(self.projects[0])
+          self.$store.dispatch('getProjects', user)
+          self.$store.dispatch('initRealtimeListeners', user)
+          if (self.projects.length <= 0) {
+            self.switchProject(self.projects[0])
+          }
+          else{
+            self.switchProject({
+              name: 'Unable to load projects',
+              files: []
+            })
+          }
         }
       });
 
@@ -465,11 +476,12 @@ body {
     },
     computed: {
       projects() {
+        console.log('this.$store.getters.projects: ', this.$store.getters.projects);
         return this.$store.getters.projects;
       },
-      firstProject() {
-        return this.projects[0]
-      },
+      // firstProject() {
+      //   return this.projects[0]
+      // },
     }
   };
 
