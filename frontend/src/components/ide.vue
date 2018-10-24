@@ -469,7 +469,7 @@ body {
       },
       firstProject() {
         return this.projects[0]
-      }
+      },
     }
   };
 
