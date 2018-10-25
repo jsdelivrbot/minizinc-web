@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import * as firebase from 'firebase'
-import { resolve } from 'path'
+import {
+  resolve
+} from 'path'
 
 Vue.use(Vuex)
 
@@ -9,34 +11,40 @@ export default new Vuex.Store({
   state: {
     user: null,
     token: null,
+    selectedProjectIndex: 0,
     projects: []
   },
   mutations: {
-    setUser (state, payload) {
+    setUser(state, payload) {
       state.user = payload
       getCollection('users')
         .doc(payload.uid)
         .set(payload)
     },
-    addProject (state, project) {
+    addProject(state, project) {
       state.projects.push(project)
     },
-    updateProject (state, updates) {
+    updateProject(state, updates) {
       const index = state.projects.findIndex(
         project => project.uid === updates.uid
       )
       state.projects.splice(index, 1, updates)
     },
-    deleteProject (state, uid) {
+    deleteProject(state, uid) {
       const index = state.projects.findIndex(project => project.uid === uid)
       state.projects.splice(index, 1)
     },
-    setProjects (state, projects) {
+    setProjects(state, projects) {
       state.projects = projects
+    },
+    updateProjectIndex(state, index) {
+      state.selectedProjectIndex = index
     }
   },
   actions: {
-    signIn ({ commit }, payload) {
+    signIn({
+      commit
+    }, payload) {
       const users = getCollection('users')
       let userState
       users
@@ -58,8 +66,7 @@ export default new Vuex.Store({
               name: 'Test project',
               owner: payload.email,
               uid: ID(),
-              files: [
-                {
+              files: [{
                   name: 'model.mzn',
                   uid: ID(),
                   code: `int: n;
@@ -89,17 +96,19 @@ export default new Vuex.Store({
           console.log('err: ', err)
         })
     },
-    logout ({ commit }) {
+    logout({
+      commit
+    }) {
       commit('setUser', {})
       commit('setProjects', [])
     },
-    initRealtimeListeners (context, user) {
+    initRealtimeListeners(context, user) {
       const projects = getCollection('projects')
       projects.where('owner', '==', user.email).onSnapshot(snapshot => {
         snapshot.docChanges().forEach(change => {
-          const source = change.doc.metadata.hasPendingWrites
-            ? 'Local'
-            : 'Server'
+          const source = change.doc.metadata.hasPendingWrites ?
+            'Local' :
+            'Server'
           if (change.type === 'added' && source === 'Server') {
             const payload = change.doc.data()
             context.commit('addProject', {
@@ -120,7 +129,7 @@ export default new Vuex.Store({
         })
       })
     },
-    addProject (context, payload) {
+    addProject(context, payload) {
       getCollection('projects')
         .doc()
         .update({
@@ -131,7 +140,7 @@ export default new Vuex.Store({
           context.commit('addProject', project)
         })
     },
-    updateProject (context, payload) {
+    updateProject(context, payload) {
       getCollection('projects')
         .doc(payload.uid)
         .set(payload, {
@@ -141,7 +150,7 @@ export default new Vuex.Store({
           context.commit('updateProject', payload)
         })
     },
-    deleteProject (context, uid) {
+    deleteProject(context, uid) {
       getCollection('projects')
         .doc(uid)
         .delete()
@@ -149,38 +158,53 @@ export default new Vuex.Store({
           context.commit('deleteProject', uid)
         })
     },
-    getProjects (context, user) {
-      console.log('user.email: ', user.email)
+    getProjects(context, user) {
       getCollection('projects')
         .where('owner', '==', user.email)
         .get()
         .then(snapshot => {
-          let projects = []
-          console.log('snapshot: ', snapshot)
-          snapshot.forEach(doc => {
-            if (!contains(projects, doc.data())) projects.push(doc.data())
+          const projects = []
+          snapshot.docs.forEach(doc => {
+            const data = doc.data()
+            let proj = {
+              uid: data.uid,
+              owner: data.owner,
+              name: data.name,
+              files: data.files
+            }
+            projects.push(proj)
+            console.log('proj: ', proj);
           })
-          context.commit('setProjects', projects)
+          // console.log('projects: ', projects);
+          const uniqueProjects = projects.filter(function (project, index) {
+            return projects.indexOf(project) == index;
+          })
+          context.commit('setProjects', uniqueProjects)
+          // console.log('uniqueProjects: ', uniqueProjects);
         })
+    },
+    updateProjectIndex(context, index) {
+      context.commit('updateProjectIndex', index)
     }
   },
   getters: {
-    user (state) {
+    user(state) {
       return state.user
     },
-    projects (state) {
-      const noneFound = [
-        {
-          name: 'No projects found',
-          files: []
-        }
-      ]
+    projects(state) {
+      const noneFound = [{
+        name: 'No projects found',
+        files: []
+      }]
       return state.projects || noneFound
+    },
+    selectedProjectIndex(state) {
+      return state.selectedProjectIndex
     }
   }
 })
 
-function getCollection (collection) {
+function getCollection(collection) {
   const db = firebase.firestore()
   const settings = {
     timestampsInSnapshots: true
@@ -189,18 +213,11 @@ function getCollection (collection) {
   return db.collection(collection)
 }
 
-function contains (list, item) {
-  list.forEach(obj => {
-    if (obj.uid === item.uid) return true
-  })
-  return false
-}
-
-function ID () {
+function ID() {
   return (
     '_' +
     Math.random()
-      .toString(36)
-      .substr(2, 9)
+    .toString(36)
+    .substr(2, 9)
   )
 }
