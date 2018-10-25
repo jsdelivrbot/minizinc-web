@@ -200,7 +200,13 @@ output ["The resulting values are \\(x)."];
         {
           name: 'No projects found',
           uid: 'blah',
-          files: []
+          files: [
+            {
+              uid: 'blah',
+              name: 'loading',
+              code: 'loading'
+            }
+          ]
         }
       ]
       return state.projects || noneFound

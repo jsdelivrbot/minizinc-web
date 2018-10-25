@@ -100,7 +100,10 @@ body {
           </v-layout>
           <v-list-tile v-for="(project, index) in projects" :key="project.uid" @click="switchProject(project, index)">
             <v-list-tile-title v-text="project.name"></v-list-tile-title>
-            <v-btn fab dark fixed right flat small color="red" @click.stop="switchProject" @click="deleteProject(project, index)">
+            <v-btn fab right flat small color="white" @click.stop="switchProject">
+              <v-icon dark>edit</v-icon>
+            </v-btn>
+            <v-btn fab fixed right flat small color="white" @click.stop="switchProject" @click="deleteProject(project, index)">
               <v-icon dark>delete</v-icon>
             </v-btn>
           </v-list-tile>
@@ -121,11 +124,14 @@ body {
           <v-list-tile v-if="selectedProject" v-for="(file, index) in selectedProject.files" :key="file.uid" class="clickable"
             @click="switchFile(file, index)">
             <v-list-tile-title v-text="file.name"></v-list-tile-title>
-            <v-btn fab dark fixed right flat small color="red" @click.stop="switchFile" @click="deleteFile(file, index)">
+            <v-btn fab right flat small color="white" @click.stop="switchFile">
+              <v-icon dark>edit</v-icon>
+            </v-btn>
+            <v-btn fab fixed right flat small color="white" @click.stop="switchFile" @click="deleteFile(file, index)">
               <v-icon dark>delete</v-icon>
             </v-btn>
           </v-list-tile>
-          <v-subheader v-if="selectedProject && selectedProject.files.length <= 0 && projects.length > 0 && !showNewFile">No
+          <v-subheader v-if="projects.length > 0 && selectedProject && selectedProject.files.length <= 0 && !showNewFile">No
             files exist
             yet. Create one!</v-subheader>
         </v-list>
