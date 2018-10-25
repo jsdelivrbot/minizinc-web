@@ -1,9 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import * as firebase from 'firebase'
-import {
-  resolve
-} from 'path'
+import { resolve } from 'path'
 
 Vue.use(Vuex)
 
@@ -12,39 +10,41 @@ export default new Vuex.Store({
     user: null,
     token: null,
     selectedProjectIndex: 0,
+    selectedFileIndex: 0,
     projects: []
   },
   mutations: {
-    setUser(state, payload) {
+    setUser (state, payload) {
       state.user = payload
       getCollection('users')
         .doc(payload.uid)
         .set(payload)
     },
-    addProject(state, project) {
+    addProject (state, project) {
       state.projects.push(project)
     },
-    updateProject(state, updates) {
+    updateProject (state, updates) {
       const index = state.projects.findIndex(
         project => project.uid === updates.uid
       )
       state.projects.splice(index, 1, updates)
     },
-    deleteProject(state, uid) {
+    deleteProject (state, uid) {
       const index = state.projects.findIndex(project => project.uid === uid)
       state.projects.splice(index, 1)
     },
-    setProjects(state, projects) {
+    setProjects (state, projects) {
       state.projects = projects
     },
-    updateProjectIndex(state, index) {
+    updateProjectIndex (state, index) {
       state.selectedProjectIndex = index
+    },
+    updateFileIndex (state, index) {
+      state.selectedFileIndex = index
     }
   },
   actions: {
-    signIn({
-      commit
-    }, payload) {
+    signIn ({ dispatch, commit }, payload) {
       const users = getCollection('users')
       let userState
       users
@@ -62,53 +62,57 @@ export default new Vuex.Store({
               uid: payload.uid
             }
             console.log('New user created: ', userState)
-            const newUserProject = {
-              name: 'Test project',
-              owner: payload.email,
-              uid: ID(),
-              files: [{
-                  name: 'model.mzn',
-                  uid: ID(),
-                  code: `int: n;
-  array[1..n] of var 1..2*n: x;
-  include "alldifferent.mzn";
-  constraint alldifferent(x);
-  solve maximize sum(x);
-  output ["The resulting values are \\(x)."];
-  `
-                },
-                {
-                  name: 'data.dzn',
-                  uid: ID(),
-                  code: 'n = 9;'
-                }
-              ]
-            }
-            getCollection('projects')
-              .add(newUserProject)
-              .then(project => {
-                commit('setProjects', [project])
-              })
+            dispatch('initTestProject', payload.email)
           }
           commit('setUser', userState)
+          dispatch('initRealtimeListeners', payload)
+          return dispatch('getProjects', userState)
         })
         .catch(err => {
           console.log('err: ', err)
         })
     },
-    logout({
-      commit
-    }) {
+    initTestProject (context, email) {
+      const newUserProject = {
+        name: 'Test project',
+        owner: email,
+        uid: ID(),
+        files: [
+          {
+            name: 'model.mzn',
+            uid: ID(),
+            code: `int: n;
+array[1..n] of var 1..2*n: x;
+include "alldifferent.mzn";
+constraint alldifferent(x);
+solve maximize sum(x);
+output ["The resulting values are \\(x)."];
+`
+          },
+          {
+            name: 'data.dzn',
+            uid: ID(),
+            code: 'n = 9;'
+          }
+        ]
+      }
+      getCollection('projects')
+        .add(newUserProject)
+        .then(project => {
+          context.commit('setProjects', [project])
+        })
+    },
+    logout ({ commit }) {
       commit('setUser', {})
       commit('setProjects', [])
     },
-    initRealtimeListeners(context, user) {
+    initRealtimeListeners (context, user) {
       const projects = getCollection('projects')
       projects.where('owner', '==', user.email).onSnapshot(snapshot => {
         snapshot.docChanges().forEach(change => {
-          const source = change.doc.metadata.hasPendingWrites ?
-            'Local' :
-            'Server'
+          const source = change.doc.metadata.hasPendingWrites
+            ? 'Local'
+            : 'Server'
           if (change.type === 'added' && source === 'Server') {
             const payload = change.doc.data()
             context.commit('addProject', {
@@ -129,7 +133,7 @@ export default new Vuex.Store({
         })
       })
     },
-    addProject(context, payload) {
+    addProject (context, payload) {
       getCollection('projects')
         .doc()
         .update({
@@ -140,7 +144,7 @@ export default new Vuex.Store({
           context.commit('addProject', project)
         })
     },
-    updateProject(context, payload) {
+    updateProject (context, payload) {
       getCollection('projects')
         .doc(payload.uid)
         .set(payload, {
@@ -150,7 +154,7 @@ export default new Vuex.Store({
           context.commit('updateProject', payload)
         })
     },
-    deleteProject(context, uid) {
+    deleteProject (context, uid) {
       getCollection('projects')
         .doc(uid)
         .delete()
@@ -158,7 +162,7 @@ export default new Vuex.Store({
           context.commit('deleteProject', uid)
         })
     },
-    getProjects(context, user) {
+    getProjects (context, user) {
       getCollection('projects')
         .where('owner', '==', user.email)
         .get()
@@ -173,38 +177,44 @@ export default new Vuex.Store({
               files: data.files
             }
             projects.push(proj)
-            console.log('proj: ', proj);
           })
-          // console.log('projects: ', projects);
           const uniqueProjects = projects.filter(function (project, index) {
-            return projects.indexOf(project) == index;
+            return projects.indexOf(project) == index
           })
-          context.commit('setProjects', uniqueProjects)
-          // console.log('uniqueProjects: ', uniqueProjects);
+          return context.commit('setProjects', uniqueProjects)
         })
     },
-    updateProjectIndex(context, index) {
+    updateProjectIndex (context, index) {
       context.commit('updateProjectIndex', index)
+    },
+    updateFileIndex (context, index) {
+      context.commit('updateFileIndex', index)
     }
   },
   getters: {
-    user(state) {
+    user (state) {
       return state.user
     },
-    projects(state) {
-      const noneFound = [{
-        name: 'No projects found',
-        files: []
-      }]
+    projects (state) {
+      const noneFound = [
+        {
+          name: 'No projects found',
+          uid: 'blah',
+          files: []
+        }
+      ]
       return state.projects || noneFound
     },
-    selectedProjectIndex(state) {
+    selectedProjectIndex (state) {
       return state.selectedProjectIndex
+    },
+    selectedFileIndex (state) {
+      return state.selectedFileIndex
     }
   }
 })
 
-function getCollection(collection) {
+function getCollection (collection) {
   const db = firebase.firestore()
   const settings = {
     timestampsInSnapshots: true
@@ -213,11 +223,11 @@ function getCollection(collection) {
   return db.collection(collection)
 }
 
-function ID() {
+function ID () {
   return (
-    '_' +
+    '_mzw_' +
     Math.random()
-    .toString(36)
-    .substr(2, 9)
+      .toString(36)
+      .substr(2, 15)
   )
 }

@@ -98,7 +98,7 @@ body {
                 autofocus dark></v-text-field>
             </v-flex>
           </v-layout>
-          <v-list-tile v-for="(project, index) in projects" :key="project.uid" @click="switchProject(project)">
+          <v-list-tile v-for="(project, index) in projects" :key="project.uid" @click="switchProject(project, index)">
             <v-list-tile-title v-text="project.name"></v-list-tile-title>
             <v-btn fab dark fixed right flat small color="red" @click.stop="switchProject" @click="deleteProject(project, index)">
               <v-icon dark>delete</v-icon>
@@ -118,14 +118,16 @@ body {
                 autofocus dark></v-text-field>
             </v-flex>
           </v-layout>
-          <!-- <v-list-tile v-if="selectedProject" v-for="(file, index) in selectedProject.files" :key="file.uid" class="clickable" @click="switchFile(file)">
+          <v-list-tile v-if="selectedProject" v-for="(file, index) in selectedProject.files" :key="file.uid" class="clickable"
+            @click="switchFile(file, index)">
             <v-list-tile-title v-text="file.name"></v-list-tile-title>
             <v-btn fab dark fixed right flat small color="red" @click.stop="switchFile" @click="deleteFile(file, index)">
               <v-icon dark>delete</v-icon>
             </v-btn>
           </v-list-tile>
-          <v-subheader v-if="selectedProject && selectedProject.files.length <= 0 && projects.length > 0 && !showNewFile">No files exist
-            yet. Create one!</v-subheader> -->
+          <v-subheader v-if="selectedProject && selectedProject.files.length <= 0 && projects.length > 0 && !showNewFile">No
+            files exist
+            yet. Create one!</v-subheader>
         </v-list>
         <v-select :items="themes" label="Select Theme" outline v-on:change="selectTheme" class="theme-selector"></v-select>
       </v-navigation-drawer>
@@ -133,7 +135,7 @@ body {
         <v-toolbar-side-icon @click.stop="drawerOpen = !drawerOpen"></v-toolbar-side-icon>
         <v-icon class="mx-3">fab fa-youtube</v-icon>
         <v-toolbar-title class="mr-5 align-center">
-          <span class="title">MiniZinc Web IDE - {{selectedFile}}</span>
+          <span class="title">MiniZinc Web IDE - {{selectedFile.name}}</span>
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-avatar size="45" color="grey lighten-4">
@@ -164,7 +166,7 @@ body {
                 </v-flex>
               </v-layout>
               <p class="left-align">{{consoleBaseOutput}}</p>
-              <v-progress-circular center indeterminate color="red" v-if="loading"></v-progress-circular>
+              <v-progress-circular center indeterminate color="red" v-if="awaitingScriptResponse"></v-progress-circular>
               <p class="left-align">{{consoleOutput}}</p>
             </v-flex>
           </v-layout>
@@ -195,7 +197,6 @@ body {
         theme: 'vibrant_ink',
         flags: '--solver Gecode',
         filesToSend: 'model.mzn data.dzn',
-        selectedFile: '',
         // selectedProject: {
         //   name: 'No projects found',
         //   files: []
@@ -250,7 +251,8 @@ body {
           photoURL: '',
           displayName: ''
         },
-        loading: false,
+        awaitingScriptResponse: false,
+        loading: true,
         snackbar: false,
         snackbarText: '',
         deletionStack: [],
@@ -267,110 +269,104 @@ body {
           owner: this.currentUser.email,
           files: []
         }
-        this.projects.push(newProject)
+        this.$store.dispatch('addProject', newProject)
         this.newProject = ''
-        this.switchProject(newProject)
-        //todo reflect new project in database
         //todo reflect files on node server
       },
       createFile() {
         this.showNewFile = false
-        // const file = {
-        //   name: this.newFile,
-        //   code: ''
-        // }
-        //todo state add file
-        // this.selectedProject.files.push(file)
+        const newFile = {
+          name: this.newFile,
+          code: ''
+        }
+        const currentProject = this.selectedProject
+        this.$store.dispatch('updateProject', {
+          ...currentProject,
+          files: [...currentProject.files, newFile]
+        })
         this.newFile = ''
         // this.switchFile(file)
       },
       selectTheme(theme) {
         this.theme = theme
       },
-      switchFile(file, autoClose = true) {
+      switchFile(file, index, autoClose = true) {
         this.saveSelectedFile()
-        this.selectedFile = file.name
-        this.codeEntered = file.code
+        this.$store.dispatch('updateFileIndex', index)
+        this.codeEntered = this.selectedFile.code
         if (autoClose) this.drawerOpen = false
       },
       undoDelete() {
-        this.snackbar = false
-        const item = this.deletionStack.pop()
-        item.canceled = true
-        if (item.files) {
-          // todo implement add project
-          // this.projects.push(item)
-          // this.switchProject(item)
-        }
-        else {
-          // todo implement add file
-          // this.selectedProject.files.push(item)
-          // this.switchFile(item)
-        }
+        // this.snackbar = false
+        // const item = this.deletionStack.pop()
+        // item.canceled = true
+        // if (item.files) {
+        //   // todo implement add project
+        //   // this.projects.push(item)
+        //   // this.switchProject(item)
+        // }
+        // else {
+        //   // todo implement add file
+        //   // this.selectedProject.files.push(item)
+        //   // this.switchFile(item)
+        // }
       },
       deleteFile(file, index) {
         this.snackbarText = `"${file.name}" deleted.`
         this.snackbar = true
-        this.deletionStack.push({...file, canceled: false})
+        this.deletionStack.push({ ...file,
+          canceled: false
+        })
         this.queueDeletion()
 
-        this.selectedProject.files.splice(index, 1)
-        if (this.selectedProject.files.length >= 1) {
-          this.switchFile(this.selectedProject.files[0], false)
-        } else {
-          this.selectedFile = `Please create a file to start with "${this.selectedProject.name}".`
-          this.codeEntered = ''
-        }
+        // this.selectedProject.files.splice(index, 1)
+        // if (this.selectedProject.files.length >= 1) {
+        //   this.switchFile(this.selectedProject.files[0], false)
+        // } else {
+        //   this.selectedFile = `Please create a file to start with "${this.selectedProject.name}".`
+        //   this.codeEntered = ''
+        // }
         this.drawerOpen = true
       },
       deleteProject(project, index) {
         this.snackbarText = `"${project.name}" deleted.`
         this.snackbar = true
-        this.deletionStack.push({...project, canceled: false})
+        this.deletionStack.push({ ...project,
+          canceled: false
+        })
         this.queueDeletion()
 
-        this.projects.splice(index, 1)
-        if (this.projects.length >= 1) {
-          this.switchProject(this.projects[0])
-        } else {
-          // this.selectedProject.files = []
-          // this.selectedProject.name = ''
-          this.selectedFile = `Please create a project to get started.`
-          this.codeEntered = ''
-        }
-        this.drawerOpen = true
+        // this.projects.splice(index, 1)
+        // if (this.projects.length >= 1) {
+        //   this.switchProject(this.projects[0])
+        // } else {
+        //   // this.selectedProject.files = []
+        //   // this.selectedProject.name = ''
+        //   this.selectedFile = `Please create a project to get started.`
+        //   this.codeEntered = ''
+        // }
+        // this.drawerOpen = true
       },
-      queueDeletion(){
+      queueDeletion() {
         setTimeout(() => {
           this.deletionStack.forEach(item => {
             //todo delete item in database
           })
         }, 6000)
       },
-      switchProject(project) {
+      switchProject(project, index) {
         this.saveSelectedFile()
-        this.projects.forEach((p, index) => {
-          if (p.uid === project.uid) {
-            this.$store.dispatch('updateProjectIndex', index)
-          }
-        })
-        // if (this.selectedProject.files.length <= 0) {
-        //   this.selectedFile = `Please create a file to start with "${project.name}".`
-        //   this.codeEntered = ''
-        // } else {
-        //   this.selectedFile = this.selectedProject.files[0].name
-        //   this.codeEntered = this.selectedProject.files[0].code
-        // }
-
+        this.$store.dispatch('updateProjectIndex', index)
       },
       saveSelectedFile() {
+        // this.$store.dispatch('updateProject', this.selectedProject)
         // if(!this.selectedProject || !this.selectedProject.files) return
         // for (let f of this.selectedProject.files) {
         //   if (f.name === this.selectedFile) f.code = this.codeEntered
         // }
       },
       sendScript() {
-        this.loading = true
+        this.awaitingScriptResponse = true
         this.consoleOutput = ''
         this.saveSelectedFile()
         let self = this;
@@ -382,7 +378,7 @@ body {
         }
         if (tempFiles.length <= 0) {
           self.consoleOutput = `Couldn't find any files that you specified.`
-          this.loading = false
+          this.awaitingScriptResponse = false
           return
         }
         let url
@@ -401,7 +397,7 @@ body {
             let response = res.data.replace(/-/g, '');
             response = response.replace(/=/g, '');
             self.consoleOutput = response;
-            this.loading = false
+            this.awaitingScriptResponse = false
           });
       },
       loadAllThemes() {
@@ -460,34 +456,26 @@ body {
         if (user) {
           self.$store.dispatch('signIn', user)
           self.currentUser = user
-          self.$store.dispatch('getProjects', user)
-          self.$store.dispatch('initRealtimeListeners', user)
-          if (self.projects.length >= 0) {
-            self.switchProject(self.projects[0])
-          }
-          else{
-            self.switchProject({
-              name: 'Unable to load projects',
-              files: []
-            })
-          }
         }
       });
-
-
       this.loadAllThemes()
     },
     computed: {
       projects() {
-        console.log('this.$store.getters.projects: ', this.$store.getters.projects);
         return this.$store.getters.projects;
       },
       selectedProject() {
-        return this.projects[this.$store.getters.selectedProjectIndex]
+        console.log('selectedProject: ', this.projects[this.$store.getters.selectedProjectIndex]);
+        return this.projects[this.$store.getters.selectedProjectIndex] || null
       },
-      // firstProject() {
-      //   return this.projects[0]
-      // },
+      selectedFile() {
+        if(this.loading && this.selectedProject.files[this.$store.getters.selectedFileIndex]) {
+          this.loading = false
+          this.codeEntered = this.selectedProject.files[this.$store.getters.selectedFileIndex].code
+        }
+        console.log('selectedFile: ', this.selectedProject.files[this.$store.getters.selectedFileIndex]);
+        return this.selectedProject.files[this.$store.getters.selectedFileIndex] || null
+      }
     }
   };
 
