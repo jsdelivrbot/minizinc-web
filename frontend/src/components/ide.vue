@@ -80,6 +80,10 @@ body {
 	margin-bottom: 100px;
 	width: 90%;
 }
+
+.edit-button {
+	margin-right: 25px;
+}
 </style>
 
 <template>
@@ -98,12 +102,12 @@ body {
                 autofocus dark></v-text-field>
             </v-flex>
           </v-layout>
-          <v-list-tile v-for="(project, index) in projects" :key="project.uid" @click="switchProject(project, index)">
+          <v-list-tile v-for="(project, index) in projects" :key="project.id" @click="switchProject(project, index)">
             <v-list-tile-title v-text="project.name"></v-list-tile-title>
-            <v-btn fab right flat small color="white" @click.stop="switchProject">
+            <v-btn fab right flat small color="white" class="edit-button" @click.stop="switchProject">
               <v-icon dark>edit</v-icon>
             </v-btn>
-            <v-btn fab fixed right flat small color="white" @click.stop="switchProject" @click="deleteProject(project, index)">
+            <v-btn fab fixed right flat small color="white" @click.stop="switchProject(project, index)" @click="deleteProject(project, index)">
               <v-icon dark>delete</v-icon>
             </v-btn>
           </v-list-tile>
@@ -121,17 +125,17 @@ body {
                 autofocus dark></v-text-field>
             </v-flex>
           </v-layout>
-          <v-list-tile v-if="selectedProject" v-for="(file, index) in selectedProject.files" :key="file.uid" class="clickable"
+          <v-list-tile v-if="selectedProject && selectedProject.files.length > 0" v-for="(file, index) in selectedProject.files" :key="file.id" class="clickable"
             @click="switchFile(file, index)">
             <v-list-tile-title v-text="file.name"></v-list-tile-title>
-            <v-btn fab right flat small color="white" @click.stop="switchFile">
+            <v-btn fab right flat small class="edit-button" color="white" @click.stop="switchFile">
               <v-icon dark>edit</v-icon>
             </v-btn>
             <v-btn fab fixed right flat small color="white" @click.stop="switchFile" @click="deleteFile(file, index)">
               <v-icon dark>delete</v-icon>
             </v-btn>
           </v-list-tile>
-          <v-subheader v-if="projects.length > 0 && selectedProject && selectedProject.files.length <= 0 && !showNewFile">No
+          <v-subheader v-if="projects.length > 0 && selectedProject.files.length <= 0 && !showNewFile">No
             files exist
             yet. Create one!</v-subheader>
         </v-list>
@@ -141,7 +145,7 @@ body {
         <v-toolbar-side-icon @click.stop="drawerOpen = !drawerOpen"></v-toolbar-side-icon>
         <v-icon class="mx-3">fab fa-youtube</v-icon>
         <v-toolbar-title class="mr-5 align-center">
-          <span class="title">MiniZinc Web IDE - {{selectedFile.name}}</span>
+          <span class="title">MiniZinc Web IDE - {{selectedFile ? selectedFile.name : 'Please create a file to get started'}}</span>
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-avatar size="45" color="grey lighten-4">
@@ -340,6 +344,7 @@ body {
         this.deletionStack.push({ ...project,
           canceled: false
         })
+        this.$store.dispatch('deleteProject', project.id)
         this.queueDeletion()
 
         // this.projects.splice(index, 1)
@@ -460,6 +465,7 @@ body {
       const self = this;
       firebase.auth().onAuthStateChanged(user => {
         if (user) {
+          console.log('user: ', user);
           self.$store.dispatch('signIn', user)
           self.currentUser = user
         }
@@ -471,6 +477,7 @@ body {
         return this.$store.getters.projects;
       },
       selectedProject() {
+        console.log('this.$store.getters.selectedProjectIndex: ', this.$store.getters.selectedProjectIndex);
         console.log('selectedProject: ', this.projects[this.$store.getters.selectedProjectIndex]);
         return this.projects[this.$store.getters.selectedProjectIndex] || null
       },

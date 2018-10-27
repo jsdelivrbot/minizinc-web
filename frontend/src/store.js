@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import * as firebase from 'firebase'
-import { resolve } from 'path'
+import {
+  resolve
+} from 'path'
 
 Vue.use(Vuex)
 
@@ -14,37 +16,41 @@ export default new Vuex.Store({
     projects: []
   },
   mutations: {
-    setUser (state, payload) {
+    setUser(state, payload) {
       state.user = payload
       getCollection('users')
         .doc(payload.uid)
         .set(payload)
     },
-    addProject (state, project) {
+    addProject(state, project) {
       state.projects.push(project)
     },
-    updateProject (state, updates) {
+    updateProject(state, updates) {
       const index = state.projects.findIndex(
-        project => project.uid === updates.uid
+        project => project.id === updates.id
       )
       state.projects.splice(index, 1, updates)
     },
-    deleteProject (state, uid) {
-      const index = state.projects.findIndex(project => project.uid === uid)
+    deleteProject(state, id) {
+      const index = state.projects.findIndex(project => project.id === id)
       state.projects.splice(index, 1)
     },
-    setProjects (state, projects) {
+    setProjects(state, projects) {
       state.projects = projects
     },
-    updateProjectIndex (state, index) {
+    updateProjectIndex(state, index) {
       state.selectedProjectIndex = index
+      console.log('state.selectedProjectIndex: ', state.selectedProjectIndex);
     },
-    updateFileIndex (state, index) {
+    updateFileIndex(state, index) {
       state.selectedFileIndex = index
     }
   },
   actions: {
-    signIn ({ dispatch, commit }, payload) {
+    signIn({
+      dispatch,
+      commit
+    }, payload) {
       const users = getCollection('users')
       let userState
       users
@@ -72,15 +78,14 @@ export default new Vuex.Store({
           console.log('err: ', err)
         })
     },
-    initTestProject (context, email) {
+    initTestProject(context, email) {
       const newUserProject = {
         name: 'Test project',
         owner: email,
-        uid: ID(),
-        files: [
-          {
+        timestamp: new Date(),
+        files: [{
             name: 'model.mzn',
-            uid: ID(),
+            id: ID(),
             code: `int: n;
 array[1..n] of var 1..2*n: x;
 include "alldifferent.mzn";
@@ -91,7 +96,7 @@ output ["The resulting values are \\(x)."];
           },
           {
             name: 'data.dzn',
-            uid: ID(),
+            id: ID(),
             code: 'n = 9;'
           }
         ]
@@ -102,21 +107,23 @@ output ["The resulting values are \\(x)."];
           context.commit('setProjects', [project])
         })
     },
-    logout ({ commit }) {
+    logout({
+      commit
+    }) {
       commit('setUser', {})
       commit('setProjects', [])
     },
-    initRealtimeListeners (context, user) {
+    initRealtimeListeners(context, user) {
       const projects = getCollection('projects')
       projects.where('owner', '==', user.email).onSnapshot(snapshot => {
         snapshot.docChanges().forEach(change => {
-          const source = change.doc.metadata.hasPendingWrites
-            ? 'Local'
-            : 'Server'
+          const source = change.doc.metadata.hasPendingWrites ?
+            'Local' :
+            'Server'
           if (change.type === 'added' && source === 'Server') {
             const payload = change.doc.data()
             context.commit('addProject', {
-              uid: payload.uid,
+              id: payload.id,
               name: payload.name,
               owner: payload.owner,
               files: payload.files
@@ -128,25 +135,32 @@ output ["The resulting values are \\(x)."];
           }
           if (change.type === 'removed' && source === 'Server') {
             const payload = change.doc.data()
-            context.commit('deleteProject', payload.uid)
+            context.commit('deleteProject', payload.id)
           }
         })
       })
     },
-    addProject (context, payload) {
-      getCollection('projects')
-        .doc()
-        .update({
+    addProject(context, payload) {
+      getCollection('projects').add({
           ...payload,
           timestamp: new Date()
         })
-        .then(project => {
-          context.commit('addProject', project)
+        .then(function (docRef) {
+          getCollection('projects').doc(docRef.id).get().then(doc => {
+            const data = doc.data()
+            let proj = {
+              id: doc.id,
+              owner: data.owner,
+              name: data.name,
+              files: data.files
+            }
+            context.commit('addProject', proj)
+          })
         })
     },
-    updateProject (context, payload) {
+    updateProject(context, payload) {
       getCollection('projects')
-        .doc(payload.uid)
+        .doc(payload.id)
         .set(payload, {
           merge: true
         })
@@ -154,15 +168,24 @@ output ["The resulting values are \\(x)."];
           context.commit('updateProject', payload)
         })
     },
-    deleteProject (context, uid) {
+    deleteProject(context, id) {
+      console.log('deleting: ', id);
+      console.log('context: ', context.state);
+      console.log('context.state.selectedProjectIndex: ', context.getters.selectedProjectIndex);
+      console.log('comparing to: ', context.state.projects[context.getters.selectedProjectIndex]);
+      if (context.state.projects[context.state.selectedProjectIndex].id === id) {
+        console.log('resetting indexes')
+        context.commit('updateProjectIndex', 0)
+        context.commit('updateFileIndex', 0)
+      }
       getCollection('projects')
-        .doc(uid)
+        .doc(id)
         .delete()
         .then(() => {
-          context.commit('deleteProject', uid)
+          context.commit('deleteProject', id)
         })
     },
-    getProjects (context, user) {
+    getProjects(context, user) {
       getCollection('projects')
         .where('owner', '==', user.email)
         .get()
@@ -171,7 +194,7 @@ output ["The resulting values are \\(x)."];
           snapshot.docs.forEach(doc => {
             const data = doc.data()
             let proj = {
-              uid: data.uid,
+              id: doc.id,
               owner: data.owner,
               name: data.name,
               files: data.files
@@ -184,43 +207,39 @@ output ["The resulting values are \\(x)."];
           return context.commit('setProjects', uniqueProjects)
         })
     },
-    updateProjectIndex (context, index) {
+    updateProjectIndex(context, index) {
       context.commit('updateProjectIndex', index)
     },
-    updateFileIndex (context, index) {
+    updateFileIndex(context, index) {
       context.commit('updateFileIndex', index)
     }
   },
   getters: {
-    user (state) {
+    user(state) {
       return state.user
     },
-    projects (state) {
-      const noneFound = [
-        {
-          name: 'No projects found',
-          uid: 'blah',
-          files: [
-            {
-              uid: 'blah',
-              name: 'loading',
-              code: 'loading'
-            }
-          ]
-        }
-      ]
+    projects(state) {
+      const noneFound = [{
+        name: 'No projects found',
+        id: 'blah',
+        files: [{
+          id: 'blah',
+          name: 'loading',
+          code: 'loading'
+        }]
+      }]
       return state.projects || noneFound
     },
-    selectedProjectIndex (state) {
+    selectedProjectIndex(state) {
       return state.selectedProjectIndex
     },
-    selectedFileIndex (state) {
+    selectedFileIndex(state) {
       return state.selectedFileIndex
     }
   }
 })
 
-function getCollection (collection) {
+function getCollection(collection) {
   const db = firebase.firestore()
   const settings = {
     timestampsInSnapshots: true
@@ -229,11 +248,11 @@ function getCollection (collection) {
   return db.collection(collection)
 }
 
-function ID () {
+function ID() {
   return (
     '_mzw_' +
     Math.random()
-      .toString(36)
-      .substr(2, 15)
+    .toString(36)
+    .substr(2, 15)
   )
 }
