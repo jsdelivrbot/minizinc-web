@@ -32,8 +32,10 @@ export default new Vuex.Store({
       state.projects.splice(index, 1, updates)
     },
     deleteProject(state, id) {
-      const index = state.projects.findIndex(project => project.id === id)
-      state.projects.splice(index, 1)
+      if (id) {
+        const index = state.projects.findIndex(project => project.id === id)
+        state.projects.splice(index, 1)
+      }
     },
     setProjects(state, projects) {
       state.projects = projects
@@ -169,15 +171,6 @@ output ["The resulting values are \\(x)."];
         })
     },
     deleteProject(context, id) {
-      console.log('deleting: ', id);
-      console.log('context: ', context.state);
-      console.log('context.state.selectedProjectIndex: ', context.getters.selectedProjectIndex);
-      console.log('comparing to: ', context.state.projects[context.getters.selectedProjectIndex]);
-      if (context.state.projects[context.state.selectedProjectIndex].id === id) {
-        console.log('resetting indexes')
-        context.commit('updateProjectIndex', 0)
-        context.commit('updateFileIndex', 0)
-      }
       getCollection('projects')
         .doc(id)
         .delete()

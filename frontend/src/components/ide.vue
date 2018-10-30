@@ -104,10 +104,10 @@ body {
           </v-layout>
           <v-list-tile v-for="(project, index) in projects" :key="project.id" @click="switchProject(project, index)">
             <v-list-tile-title v-text="project.name"></v-list-tile-title>
-            <v-btn fab right flat small color="white" class="edit-button" @click.stop="switchProject">
+            <v-btn fab right flat small color="white" class="edit-button" v-on:click.stop="switchProject">
               <v-icon dark>edit</v-icon>
             </v-btn>
-            <v-btn fab fixed right flat small color="white" @click.stop="switchProject(project, index)" @click="deleteProject(project, index)">
+            <v-btn fab fixed right flat small color="white" v-on:click.stop="deleteProject(project, index)">
               <v-icon dark>delete</v-icon>
             </v-btn>
           </v-list-tile>
@@ -327,43 +327,23 @@ body {
         this.deletionStack.push({ ...file,
           canceled: false
         })
-        this.queueDeletion()
 
-        // this.selectedProject.files.splice(index, 1)
-        // if (this.selectedProject.files.length >= 1) {
-        //   this.switchFile(this.selectedProject.files[0], false)
-        // } else {
-        //   this.selectedFile = `Please create a file to start with "${this.selectedProject.name}".`
-        //   this.codeEntered = ''
-        // }
         this.drawerOpen = true
       },
       deleteProject(project, index) {
+        console.log('project to delete: ', project);
         this.snackbarText = `"${project.name}" deleted.`
         this.snackbar = true
-        this.deletionStack.push({ ...project,
-          canceled: false
-        })
-        this.$store.dispatch('deleteProject', project.id)
-        this.queueDeletion()
+        this.deletionStack.push({ ...project})
 
-        // this.projects.splice(index, 1)
-        // if (this.projects.length >= 1) {
-        //   this.switchProject(this.projects[0])
-        // } else {
-        //   // this.selectedProject.files = []
-        //   // this.selectedProject.name = ''
-        //   this.selectedFile = `Please create a project to get started.`
-        //   this.codeEntered = ''
-        // }
-        // this.drawerOpen = true
-      },
-      queueDeletion() {
-        setTimeout(() => {
-          this.deletionStack.forEach(item => {
-            //todo delete item in database
-          })
-        }, 6000)
+        if (this.$store.getters.selectedProjectIndex === index) {
+          // selected project was just deleted.
+          this.$store.dispatch('updateProjectIndex', 0)
+          this.$store.dispatch('updateFileIndex', 0)
+          this.loading = true
+        }
+
+        this.$store.dispatch('deleteProject', project.id)
       },
       switchProject(project, index) {
         this.saveSelectedFile()
@@ -477,8 +457,6 @@ body {
         return this.$store.getters.projects;
       },
       selectedProject() {
-        console.log('this.$store.getters.selectedProjectIndex: ', this.$store.getters.selectedProjectIndex);
-        console.log('selectedProject: ', this.projects[this.$store.getters.selectedProjectIndex]);
         return this.projects[this.$store.getters.selectedProjectIndex] || null
       },
       selectedFile() {
@@ -486,7 +464,9 @@ body {
           this.loading = false
           this.codeEntered = this.selectedProject.files[this.$store.getters.selectedFileIndex].code
         }
-        console.log('selectedFile: ', this.selectedProject.files[this.$store.getters.selectedFileIndex]);
+        else if (this.loading) {
+
+        }
         return this.selectedProject.files[this.$store.getters.selectedFileIndex] || null
       }
     }
