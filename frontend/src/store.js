@@ -215,13 +215,10 @@ output ["The resulting values are \\(x)."];
       const noneFound = [{
         name: 'No projects found',
         id: 'blah',
-        files: [{
-          id: 'blah',
-          name: 'loading',
-          code: 'loading'
-        }]
+        files: []
       }]
-      return state.projects || noneFound
+      if (!state.projects || state.projects.length <= 0) return noneFound
+      return state.projects
     },
     selectedProjectIndex(state) {
       return state.selectedProjectIndex

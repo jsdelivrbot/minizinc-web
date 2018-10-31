@@ -102,16 +102,18 @@ body {
                 autofocus dark></v-text-field>
             </v-flex>
           </v-layout>
-          <v-list-tile v-for="(project, index) in projects" :key="project.id" @click="switchProject(project, index)">
-            <v-list-tile-title v-text="project.name"></v-list-tile-title>
-            <v-btn fab right flat small color="white" class="edit-button" v-on:click.stop="switchProject">
-              <v-icon dark>edit</v-icon>
-            </v-btn>
-            <v-btn fab fixed right flat small color="white" v-on:click.stop="deleteProject(project, index)">
-              <v-icon dark>delete</v-icon>
-            </v-btn>
-          </v-list-tile>
-          <v-subheader v-if="projects.length <= 0 && !showNewProject">No projects exist. Create one!</v-subheader>
+          <div v-if="projectsExist" >
+            <v-list-tile v-for="(project, index) in projects" :key="project.id" @click="switchProject(project, index)">
+              <v-list-tile-title v-text="project.name"></v-list-tile-title>
+              <v-btn fab right flat small color="white" class="edit-button" v-on:click.stop="switchProject">
+                <v-icon dark>edit</v-icon>
+              </v-btn>
+              <v-btn fab fixed right flat small color="white" v-on:click.stop="deleteProject(project, index)">
+                <v-icon dark>delete</v-icon>
+              </v-btn>
+            </v-list-tile>
+          </div>
+          <v-subheader v-if="!projectsExist && !showNewProject">No projects exist. Create one!</v-subheader>
 
           <v-subheader style="text-align: left;" v-if="projects.length > 0" class="sidebar-header files-header">Files
             in "{{selectedProject.name}}"
@@ -125,17 +127,18 @@ body {
                 autofocus dark></v-text-field>
             </v-flex>
           </v-layout>
-          <v-list-tile v-if="selectedProject && selectedProject.files.length > 0" v-for="(file, index) in selectedProject.files" :key="file.id" class="clickable"
-            @click="switchFile(file, index)">
-            <v-list-tile-title v-text="file.name"></v-list-tile-title>
-            <v-btn fab right flat small class="edit-button" color="white" @click.stop="switchFile">
-              <v-icon dark>edit</v-icon>
-            </v-btn>
-            <v-btn fab fixed right flat small color="white" @click.stop="switchFile" @click="deleteFile(file, index)">
-              <v-icon dark>delete</v-icon>
-            </v-btn>
-          </v-list-tile>
-          <v-subheader v-if="projects.length > 0 && selectedProject.files.length <= 0 && !showNewFile">No
+          <div v-if="filesExist" >
+            <v-list-tile v-for="(file, index) in selectedProject.files" :key="file.id" class="clickable" @click="switchFile(file, index)">
+              <v-list-tile-title v-text="file.name"></v-list-tile-title>
+              <v-btn fab right flat small class="edit-button" color="white" @click.stop="switchFile">
+                <v-icon dark>edit</v-icon>
+              </v-btn>
+              <v-btn fab fixed right flat small color="white" @click.stop="switchFile" @click="deleteFile(file, index)">
+                <v-icon dark>delete</v-icon>
+              </v-btn>
+            </v-list-tile>
+          </div>
+          <v-subheader v-if="filesExist && !showNewFile">No
             files exist
             yet. Create one!</v-subheader>
         </v-list>
@@ -266,6 +269,8 @@ body {
         snackbar: false,
         snackbarText: '',
         deletionStack: [],
+        projectsExist: false,
+        filesExist: false,
       };
     },
     components: {
@@ -302,24 +307,21 @@ body {
       },
       switchFile(file, index, autoClose = true) {
         this.saveSelectedFile()
+        this.loading = true
         this.$store.dispatch('updateFileIndex', index)
-        this.codeEntered = this.selectedFile.code
         if (autoClose) this.drawerOpen = false
       },
       undoDelete() {
-        // this.snackbar = false
-        // const item = this.deletionStack.pop()
-        // item.canceled = true
-        // if (item.files) {
-        //   // todo implement add project
-        //   // this.projects.push(item)
-        //   // this.switchProject(item)
-        // }
-        // else {
-        //   // todo implement add file
-        //   // this.selectedProject.files.push(item)
-        //   // this.switchFile(item)
-        // }
+        this.snackbar = false
+        const item = this.deletionStack.pop()
+        if (item.files) {
+          let copy = {...item}
+          delete copy.id
+          this.$store.dispatch('addProject', copy)
+        }
+        else {
+          this.$store.dispatch('addFile', copy)
+        }
       },
       deleteFile(file, index) {
         this.snackbarText = `"${file.name}" deleted.`
@@ -347,7 +349,10 @@ body {
       },
       switchProject(project, index) {
         this.saveSelectedFile()
+        this.loading = true
         this.$store.dispatch('updateProjectIndex', index)
+        this.$store.dispatch('updateFileIndex', 0)
+
       },
       saveSelectedFile() {
         // this.$store.dispatch('updateProject', this.selectedProject)
@@ -457,7 +462,9 @@ body {
         return this.$store.getters.projects;
       },
       selectedProject() {
-        return this.projects[this.$store.getters.selectedProjectIndex] || null
+        console.log('this.projects[this.$store.getters.selectedProjectIndex]: ', this.projects[this.$store.getters.selectedProjectIndex]);
+        this.projectsExist = this.projects[this.$store.getters.selectedProjectIndex].id !== 'blah'
+        return this.projects[this.$store.getters.selectedProjectIndex]
       },
       selectedFile() {
         if(this.loading && this.selectedProject.files[this.$store.getters.selectedFileIndex]) {
@@ -465,8 +472,9 @@ body {
           this.codeEntered = this.selectedProject.files[this.$store.getters.selectedFileIndex].code
         }
         else if (this.loading) {
-
+          this.codeEntered = ''
         }
+        this.filesExist = this.selectedProject.files.length > 0
         return this.selectedProject.files[this.$store.getters.selectedFileIndex] || null
       }
     }
