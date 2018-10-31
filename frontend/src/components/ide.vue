@@ -167,7 +167,7 @@ body {
         <v-container fluid fill-height class="remove-margin">
           <v-layout align-space-around>
             <v-flex xs8 fill-height fill-width>
-              <editor id="editor" v-model="codeEntered" lang="ruby" v-bind:theme="theme"></editor>
+              <editor id="editor" v-model="codeEntered" lang="ruby" v-bind:theme="theme" @change="saveSelectedFile"></editor>
             </v-flex>
             <v-flex xs4 fill-height fill-width>
               <v-layout>
@@ -416,8 +416,11 @@ body {
       },
       saveSelectedFile() {
         let copy = {...this.selectedProject}
-        copy.files[this.$store.getters.selectedFileIndex].code = this.codeEntered
-        this.$store.dispatch('updateProject', copy)
+        if (this.selectedFile.code !== this.codeEntered) {
+          copy.files[this.$store.getters.selectedFileIndex].code = this.codeEntered
+          this.$store.dispatch('updateProject', copy)
+          console.log('updating code')
+        }
       },
       sendScript() {
         this.awaitingScriptResponse = true
@@ -512,6 +515,11 @@ body {
         )
       }
     },
+    watch: {
+      codeEntered: function (newCode) {
+        this.saveSelectedFile()
+      }
+    },
     created() {
       const self = this;
       firebase.auth().onAuthStateChanged(user => {
@@ -558,6 +566,7 @@ body {
 
         if(!this.loading) {
           this.filesExist = this.selectedProject.files.length > 0
+          this.codeEntered = this.selectedProject.files[this.$store.getters.selectedFileIndex].code
           return this.selectedProject.files[this.$store.getters.selectedFileIndex] || null
         }
         return null
