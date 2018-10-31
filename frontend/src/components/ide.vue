@@ -374,7 +374,10 @@ body {
         this.$set(this.editingProject, index, !this.editingProject[index])
       },
       editProject(project, index) {
-        // this.editedProjectName
+        this.$set(this.editingProject, index, !this.editingProject[index])
+        let copy = {...project, name: this.editedProjectName}
+        this.editedProjectName = ''
+        this.$store.dispatch('updateProject', copy)
 
       },
       saveSelectedFile() {
