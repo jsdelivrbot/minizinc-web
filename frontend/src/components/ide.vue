@@ -370,7 +370,6 @@ body {
         this.loading = true
         this.$store.dispatch('updateProjectIndex', index)
         this.$store.dispatch('updateFileIndex', 0)
-
       },
       startEditingProject(project, index) {
         this.editingFile.forEach((file, i) => {

@@ -78,7 +78,7 @@ export default new Vuex.Store({
     },
     initTestProject(context, email) {
       const newUserProject = {
-        name: 'Test project',
+        name: 'Sample project',
         owner: email,
         timestamp: new Date(),
         files: [{
