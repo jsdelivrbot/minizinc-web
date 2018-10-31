@@ -115,7 +115,7 @@ body {
           </div>
           <v-subheader v-if="!projectsExist && !showNewProject">No projects exist. Create one!</v-subheader>
 
-          <v-subheader style="text-align: left;" v-if="projects.length > 0" class="sidebar-header files-header">Files
+          <v-subheader style="text-align: left;" v-if="projectsExist" class="sidebar-header files-header">Files
             in "{{selectedProject.name}}"
             <v-btn fab fixed right dark small color="red" @click="showNewFile = !showNewFile">
               <v-icon dark>add</v-icon>
@@ -133,12 +133,12 @@ body {
               <v-btn fab right flat small class="edit-button" color="white" @click.stop="switchFile">
                 <v-icon dark>edit</v-icon>
               </v-btn>
-              <v-btn fab fixed right flat small color="white" @click.stop="switchFile" @click="deleteFile(file, index)">
+              <v-btn fab fixed right flat small color="white" @click.stop="deleteFile(file, index)">
                 <v-icon dark>delete</v-icon>
               </v-btn>
             </v-list-tile>
           </div>
-          <v-subheader v-if="filesExist && !showNewFile">No
+          <v-subheader v-if="projectsExist && !filesExist && !showNewFile">No
             files exist
             yet. Create one!</v-subheader>
         </v-list>
@@ -292,7 +292,8 @@ body {
         this.showNewFile = false
         const newFile = {
           name: this.newFile,
-          code: ''
+          code: '',
+          id: this.ID()
         }
         const currentProject = this.selectedProject
         this.$store.dispatch('updateProject', {
@@ -300,7 +301,6 @@ body {
           files: [...currentProject.files, newFile]
         })
         this.newFile = ''
-        // this.switchFile(file)
       },
       selectTheme(theme) {
         this.theme = theme
@@ -320,20 +320,28 @@ body {
           this.$store.dispatch('addProject', copy)
         }
         else {
-          this.$store.dispatch('addFile', copy)
+          let copy = {...this.selectedProject}
+          copy.files.push(item)
+          this.$store.dispatch('updateProject', copy)
         }
       },
       deleteFile(file, index) {
         this.snackbarText = `"${file.name}" deleted.`
         this.snackbar = true
-        this.deletionStack.push({ ...file,
-          canceled: false
-        })
+        this.deletionStack.push({ ...file})
+
+        let copy = {...this.selectedProject}
+        copy.files.splice(index, 1)
+        if (this.$store.getters.selectedFileIndex === index) {
+          this.$store.dispatch('updateFileIndex', 0)
+          this.loading = true
+        }
+        this.$store.dispatch('updateProject', copy)
+
 
         this.drawerOpen = true
       },
       deleteProject(project, index) {
-        console.log('project to delete: ', project);
         this.snackbarText = `"${project.name}" deleted.`
         this.snackbar = true
         this.deletionStack.push({ ...project})
@@ -355,11 +363,9 @@ body {
 
       },
       saveSelectedFile() {
-        // this.$store.dispatch('updateProject', this.selectedProject)
-        // if(!this.selectedProject || !this.selectedProject.files) return
-        // for (let f of this.selectedProject.files) {
-        //   if (f.name === this.selectedFile) f.code = this.codeEntered
-        // }
+        let copy = {...this.selectedProject}
+        copy.files[this.$store.getters.selectedFileIndex].code = this.codeEntered
+        this.$store.dispatch('updateProject', copy)
       },
       sendScript() {
         this.awaitingScriptResponse = true
@@ -444,13 +450,20 @@ body {
             name: 'login'
           })
         })
+      },
+      ID() {
+        return (
+          '_mzw_' +
+          Math.random()
+          .toString(36)
+          .substr(2, 20)
+        )
       }
     },
     created() {
       const self = this;
       firebase.auth().onAuthStateChanged(user => {
         if (user) {
-          console.log('user: ', user);
           self.$store.dispatch('signIn', user)
           self.currentUser = user
         }
@@ -462,7 +475,6 @@ body {
         return this.$store.getters.projects;
       },
       selectedProject() {
-        console.log('this.projects[this.$store.getters.selectedProjectIndex]: ', this.projects[this.$store.getters.selectedProjectIndex]);
         this.projectsExist = this.projects[this.$store.getters.selectedProjectIndex].id !== 'blah'
         return this.projects[this.$store.getters.selectedProjectIndex]
       },

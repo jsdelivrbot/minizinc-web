@@ -1,9 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import * as firebase from 'firebase'
-import {
-  resolve
-} from 'path'
 
 Vue.use(Vuex)
 
@@ -42,7 +39,6 @@ export default new Vuex.Store({
     },
     updateProjectIndex(state, index) {
       state.selectedProjectIndex = index
-      console.log('state.selectedProjectIndex: ', state.selectedProjectIndex);
     },
     updateFileIndex(state, index) {
       state.selectedFileIndex = index
@@ -243,6 +239,6 @@ function ID() {
     '_mzw_' +
     Math.random()
     .toString(36)
-    .substr(2, 15)
+    .substr(2, 20)
   )
 }
