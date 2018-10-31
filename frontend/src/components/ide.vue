@@ -104,8 +104,10 @@ body {
           </v-layout>
           <div v-if="projectsExist" >
             <v-list-tile v-for="(project, index) in projects" :key="project.id" @click="switchProject(project, index)">
-              <v-list-tile-title v-text="project.name"></v-list-tile-title>
-              <v-btn fab right flat small color="white" class="edit-button" v-on:click.stop="switchProject">
+              <v-list-tile-title v-if="!editingProject[index]" v-text="project.name"></v-list-tile-title>
+              <v-text-field v-if="editingProject[index]" @keyup.enter="editProject(project, index)" v-model="editedProjectName"
+                autofocus dark></v-text-field>
+              <v-btn fab right flat small color="white" class="edit-button" v-on:click.stop="startEditingProject(project, index)">
                 <v-icon dark>edit</v-icon>
               </v-btn>
               <v-btn fab fixed right flat small color="white" v-on:click.stop="deleteProject(project, index)">
@@ -271,6 +273,11 @@ body {
         deletionStack: [],
         projectsExist: false,
         filesExist: false,
+        editingProject: [],
+        editingFile: [],
+        editedProjectName: '',
+        editedFileName: '',
+        projectCount: -1,
       };
     },
     components: {
@@ -360,6 +367,14 @@ body {
         this.loading = true
         this.$store.dispatch('updateProjectIndex', index)
         this.$store.dispatch('updateFileIndex', 0)
+
+      },
+      startEditingProject(project, index) {
+        this.editedProjectName = project.name
+        this.$set(this.editingProject, index, !this.editingProject[index])
+      },
+      editProject(project, index) {
+        // this.editedProjectName
 
       },
       saveSelectedFile() {
@@ -472,6 +487,14 @@ body {
     },
     computed: {
       projects() {
+        const numProjects = this.$store.getters.projects.length
+        if (numProjects !== this.projectCount) {
+          this.projectCount = numProjects
+          this.editingProject.length = 0
+          for(let i = 0; i < numProjects; i++) {
+            this.editingProject.push(false)
+          }
+        }
         return this.$store.getters.projects;
       },
       selectedProject() {
@@ -489,6 +512,11 @@ body {
 
         if(!this.loading) {
           this.filesExist = this.selectedProject.files.length > 0
+          const numFiles = this.selectedProject.files.length
+          this.editingFile.length = 0
+          for(let i = 0; i < numFiles; i++) {
+            this.editingFile.push(false)
+          }
           return this.selectedProject.files[this.$store.getters.selectedFileIndex] || null
         }
         return null
