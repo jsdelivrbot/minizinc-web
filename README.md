@@ -11,8 +11,4 @@ $ npm start
 
 `npm install` and `npm start` intuitively install and run both the backend and frontend directories respectively.
 
-# Deploying to Heroku
-
-The frontend heroku app is listening to the master branch of this repo. When you are ready to deploy changes, merge those changes to master and heroku will automatically pick them up.
-
-You can access the heroku app at [https://minizinc.herokuapp.com/](https://minizinc.herokuapp.com/).
+A hosted version of this application can be found [here.](http://harrytportfolio.com:30001/#/)
