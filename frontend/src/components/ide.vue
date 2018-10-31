@@ -87,7 +87,7 @@ body {
 </style>
 
 <template>
-  <div id="ide">
+  <div id="ide" v-if="currentUser.displayName !== ''">
     <v-app id="inspire" dark>
       <v-navigation-drawer v-model="drawerOpen" clipped app disable-resize-watcher>
         <v-list>
@@ -486,8 +486,12 @@ body {
         else if (this.loading) {
           this.codeEntered = ''
         }
-        this.filesExist = this.selectedProject.files.length > 0
-        return this.selectedProject.files[this.$store.getters.selectedFileIndex] || null
+
+        if(!this.loading) {
+          this.filesExist = this.selectedProject.files.length > 0
+          return this.selectedProject.files[this.$store.getters.selectedFileIndex] || null
+        }
+        return null
       }
     }
   };

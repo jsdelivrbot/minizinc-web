@@ -58,6 +58,7 @@ export default new Vuex.Store({
           if (user.exists) {
             console.log('Previously Logged in: ', user.data())
             userState = user.data()
+            dispatch('getProjects', userState)
           } else {
             userState = {
               displayName: payload.displayName,
@@ -70,7 +71,6 @@ export default new Vuex.Store({
           }
           commit('setUser', userState)
           dispatch('initRealtimeListeners', payload)
-          return dispatch('getProjects', userState)
         })
         .catch(err => {
           console.log('err: ', err)
@@ -99,10 +99,20 @@ output ["The resulting values are \\(x)."];
           }
         ]
       }
-      getCollection('projects')
+      const projects = getCollection('projects')
+      projects
         .add(newUserProject)
         .then(project => {
-          context.commit('setProjects', [project])
+          projects.doc(project.id).get().then(newProject => {
+            const data = newProject.data()
+            let proj = {
+              id: newProject.id,
+              owner: data.owner,
+              name: data.name,
+              files: data.files
+            }
+            return context.commit('setProjects', [proj])
+          })
         })
     },
     logout({
