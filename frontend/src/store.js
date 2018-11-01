@@ -14,10 +14,15 @@ export default new Vuex.Store({
   },
   mutations: {
     setUser(state, payload) {
-      state.user = payload
-      getCollection('users')
-        .doc(payload.uid)
-        .set(payload)
+      if(payload) {
+        state.user = payload
+        getCollection('users')
+          .doc(payload.uid)
+          .set(payload)
+      }
+      else {
+        state.user = null
+      }
     },
     addProject(state, project) {
       state.projects.push(project)
@@ -118,8 +123,8 @@ output ["The resulting values are \\(x)."];
     logout({
       commit
     }) {
-      commit('setUser', {})
-      commit('setProjects', [])
+      commit('setUser', null)
+      commit('setProjects', null)
     },
     initRealtimeListeners(context, user) {
       const projects = getCollection('projects')
