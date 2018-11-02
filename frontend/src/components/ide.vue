@@ -132,7 +132,7 @@ body {
           <div v-if="filesExist" >
             <v-list-tile v-for="(file, index) in selectedProject.files" :key="file.id" class="clickable" @click="switchFile(file, index)">
               <v-list-tile-title v-if="!editingFile[index]" v-text="file.name"></v-list-tile-title>
-              <v-text-field v-if="editingFile[index]" @keyup.enter="editFile(file, index)" v-model="editedFileName"
+              <v-text-field v-if="editingFile[index]" @keyup.enter="editFile(file, index)" @click.stop v-model="editedFileName"
                 autofocus dark></v-text-field>
               <v-btn fab right flat small class="edit-button" color="white" v-on:click.stop="startEditingFile(file, index)">
                 <v-icon dark>edit</v-icon>
@@ -315,11 +315,10 @@ body {
       selectTheme(theme) {
         this.theme = theme
       },
-      switchFile(file, index, autoClose = true) {
+      switchFile(file, index, ) {
         this.saveSelectedFile()
         this.loading = true
         this.$store.dispatch('updateFileIndex', index)
-        if (autoClose) this.drawerOpen = false
       },
       undoDelete() {
         this.snackbar = false
