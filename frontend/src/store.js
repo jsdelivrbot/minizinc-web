@@ -86,6 +86,7 @@ export default new Vuex.Store({
         name: 'Sample project',
         owner: email,
         timestamp: new Date(),
+        collaborators: [],
         files: [{
             name: 'model.mzn',
             id: ID(),
@@ -114,7 +115,8 @@ output ["The resulting values are \\(x)."];
               id: newProject.id,
               owner: data.owner,
               name: data.name,
-              files: data.files
+              files: data.files,
+              collaborators: data.collaborators
             }
             return context.commit('setProjects', [proj])
           })
@@ -139,7 +141,8 @@ output ["The resulting values are \\(x)."];
               id: payload.id,
               name: payload.name,
               owner: payload.owner,
-              files: payload.files
+              files: payload.files,
+              collaborators: payload.collaborators
             })
           }
           if (change.type === 'modified' && source === 'Server') {
@@ -165,7 +168,8 @@ output ["The resulting values are \\(x)."];
               id: doc.id,
               owner: data.owner,
               name: data.name,
-              files: data.files
+              files: data.files,
+              collaborators: data.collaborators
             }
             context.commit('addProject', proj)
           })
@@ -201,7 +205,8 @@ output ["The resulting values are \\(x)."];
               id: doc.id,
               owner: data.owner,
               name: data.name,
-              files: data.files
+              files: data.files,
+              collaborators: data.collaborators
             }
             projects.push(proj)
           })

@@ -53,6 +53,7 @@ body {
 
 .code-text {
 	font-family: Consolas, monaco, monospace;
+  margin-top: 18px !important;
 }
 
 .custom-container {
@@ -84,6 +85,19 @@ body {
 .edit-button {
 	margin-right: 25px;
 }
+
+.solve-button {
+  margin-left: 0;
+}
+
+.add-collaborator {
+  margin-left: 15px;
+}
+
+.share-project-title {
+  font-size: 24px;
+}
+
 </style>
 
 <template>
@@ -107,12 +121,36 @@ body {
               <v-list-tile-title v-if="!editingProject[index]" v-text="project.name"></v-list-tile-title>
               <v-text-field v-if="editingProject[index]" @keyup.enter="editProject(project, index)" v-model="editedProjectName"
                 autofocus dark></v-text-field>
-              <v-btn fab right flat small color="white" class="edit-button" v-on:click.stop="startEditingProject(project, index)">
-                <v-icon dark>edit</v-icon>
-              </v-btn>
-              <v-btn fab fixed right flat small color="white" v-on:click.stop="deleteProject(project, index)">
-                <v-icon dark>delete</v-icon>
-              </v-btn>
+
+              <v-menu bottom left>
+                <v-btn
+                  slot="activator"
+                  dark
+                  icon
+                  right
+                  fixed
+                >
+                  <v-icon>more_vert</v-icon>
+                </v-btn>
+
+                <v-list>
+                  <v-list-tile
+                    v-on:click.stop="drawerOpen=false;showShareProject=true"
+                  >
+                    <v-icon dark small>person_add</v-icon>&nbsp;<v-list-tile-title>Share</v-list-tile-title>
+                  </v-list-tile>
+                  <v-list-tile
+                    v-on:click.stop="startEditingProject(project, index)"
+                  >
+                    <v-icon dark small>edit</v-icon>&nbsp;<v-list-tile-title>Rename</v-list-tile-title>
+                  </v-list-tile>
+                  <v-list-tile
+                    v-on:click.stop="deleteProject(project, index)"
+                  >
+                    <v-icon dark small>delete</v-icon>&nbsp;<v-list-tile-title>Delete</v-list-tile-title>
+                  </v-list-tile>
+                </v-list>
+              </v-menu>
             </v-list-tile>
           </div>
           <v-subheader v-if="!projectsExist && !showNewProject">No projects exist. Create one!</v-subheader>
@@ -168,21 +206,54 @@ body {
           <v-layout align-space-around>
             <v-flex xs8 fill-height fill-width>
               <editor id="editor" v-model="codeEntered" lang="ruby" v-bind:theme="theme" @change="saveSelectedFile"></editor>
+              <v-dialog light v-model="showShareProject" max-width="500px">
+                <v-card>
+                  <v-card-title class="share-project-title">
+                    Share "{{selectedProject.name}}"
+                  </v-card-title>
+                    <v-list>
+                      <div v-if="selectedProject.collaborators.length > 0" >
+                        <v-flex xs9>
+                        <v-list-tile v-for="(collaborator, index) in selectedProject.collaborators" :key="collaborator" >
+                          <v-list-tile-title>{{collaborator}}</v-list-tile-title>
+                          <v-btn fab flat small v-on:click="removeCollaborator(index)">
+                            <v-icon dark>delete</v-icon>
+                          </v-btn>
+                        </v-list-tile>
+                        </v-flex>
+                      </div>
+                      <v-list-tile>
+                        <v-list-tile-title v-if="selectedProject.collaborators.length <= 0">No collaborators invited. Invited one!</v-list-tile-title>
+                      </v-list-tile>
+                    </v-list>
+                    <v-layout>
+                      <v-flex xs10 >
+                        <v-text-field class="add-collaborator" max-width="300px" label="New Collaborator's Email address" @keyup.enter="addCollaborator" v-model="newCollaboratorEmail"
+                          autofocus light></v-text-field>
+                      </v-flex>
+                    </v-layout>
+                  <v-card-actions>
+                    <v-btn color="error" @click="showShareProject=false">Done</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
             </v-flex>
             <v-flex xs4 fill-height fill-width>
               <v-layout>
                 <v-flex xs3>
-                  <p class="left-align">Console:&nbsp; <span class="code-text">minizinc</span></p>
+                  <p class="left-align code-text">minizinc</p>
                 </v-flex>
                 <v-flex xs4>
                   <v-text-field class="inputs" label="Flags" placeholder="--solver Gecode" v-model="flags"></v-text-field>
                 </v-flex>
                 <v-flex xs5>
                   <v-text-field class="inputs" label="Files" placeholder="model.mzn data.dzn" v-model="filesToSend"></v-text-field>
-                  <v-btn @click="sendScript()" color="error">Solve</v-btn>
                 </v-flex>
               </v-layout>
-              <p class="left-align">{{consoleBaseOutput}}</p>
+              <v-layout>
+                <v-btn left @click="sendScript()" color="error" class="solve-button">Solve</v-btn>
+              </v-layout>
+
               <v-progress-circular center indeterminate color="red" v-if="awaitingScriptResponse"></v-progress-circular>
               <p class="left-align">{{consoleOutput}}</p>
             </v-flex>
@@ -214,11 +285,7 @@ body {
         theme: 'vibrant_ink',
         flags: '--solver Gecode',
         filesToSend: 'model.mzn data.dzn',
-        // selectedProject: {
-        //   name: 'No projects found',
-        //   files: []
-        // },
-        consoleBaseOutput: 'Console output will go here\n\n',
+        showShareProject: true,
         consoleOutput: '',
         codeEntered: '',
         themes: [
@@ -280,19 +347,32 @@ body {
         editedProjectName: '',
         editedFileName: '',
         projectCount: -1,
-        fileCount: -1
+        fileCount: -1,
+        newCollaboratorEmail: ''
       };
     },
     components: {
       editor: require('vue2-ace-editor'),
     },
     methods: {
+      addCollaborator() {
+        let copy = {...this.selectedProject}
+        copy.collaborators.push(this.newCollaboratorEmail)
+        this.$store.dispatch('updateProject', copy)
+        this.newCollaboratorEmail = ''
+      },
+      removeCollaborator(index) {
+        let copy = {...this.selectedProject}
+        copy.collaborators.splice(index, 1)
+        this.$store.dispatch('updateProject', copy)
+      },
       createProject() {
         this.showNewProject = false
         const newProject = {
           name: this.newProject,
           owner: this.currentUser.email,
-          files: []
+          files: [],
+          collaborators: []
         }
         this.$store.dispatch('addProject', newProject)
         this.newProject = ''
@@ -549,7 +629,6 @@ body {
           for(let i = 0; i < files.length; i++) {
             this.editingFile.push(false)
           }
-            console.log('reset: ', this.editingFile);
         }
         return this.projects[this.$store.getters.selectedProjectIndex]
       },
