@@ -285,7 +285,7 @@ body {
         theme: 'vibrant_ink',
         flags: '--solver Gecode',
         filesToSend: 'model.mzn data.dzn',
-        showShareProject: true,
+        showShareProject: false,
         consoleOutput: '',
         codeEntered: '',
         themes: [
