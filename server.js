@@ -6,7 +6,6 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const passport = require('passport');
-const flash = require('connect-flash');
 
 const app = express();
 app.use(helmet());
@@ -24,7 +23,6 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
-// app.use(flash()); // use connect-flash for flash messages stored in session
 
 const db = require('./db.js');
 // const authRouter = require('./routes/auth.js')(app, passport);
