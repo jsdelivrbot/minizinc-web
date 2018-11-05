@@ -105,21 +105,43 @@ output ["The resulting values are \\(x)."];
           }
         ]
       }
-      const projects = getCollection('projects')
-      projects
+      const projectsRef = getCollection('projects')
+      const projects = []
+      projectsRef
         .add(newUserProject)
         .then(project => {
-          projects.doc(project.id).get().then(newProject => {
-            const data = newProject.data()
-            let proj = {
-              id: newProject.id,
-              owner: data.owner,
-              name: data.name,
-              files: data.files,
-              collaborators: data.collaborators
-            }
-            return context.commit('setProjects', [proj])
-          })
+          getCollection('projects')
+            .where('collaborators', 'array-contains', user.email)
+            .get()
+            .then(collaboratingOn => {
+              projectsRef.doc(project.id).get().then(newProject => {
+                const data = newProject.data()
+                const proj = {
+                  id: newProject.id,
+                  owner: data.owner,
+                  name: data.name,
+                  files: data.files,
+                  collaborators: data.collaborators
+                }
+                projects.push(proj)
+                collaboratingOn.docs.forEach(doc => {
+                  const data = doc.data()
+                  const proj = {
+                    id: doc.id,
+                    owner: data.owner,
+                    name: data.name,
+                    files: data.files,
+                    collaborators: data.collaborators
+                  }
+                  projects.push(proj)
+                })
+                const uniqueProjects = projects.filter(function (project, index) {
+                  return projects.indexOf(project) == index
+                })
+                console.log('uniqueProjects: ', uniqueProjects);
+                return context.commit('setProjects', uniqueProjects)
+              })
+            })
         })
     },
     logout({
@@ -197,23 +219,40 @@ output ["The resulting values are \\(x)."];
       getCollection('projects')
         .where('owner', '==', user.email)
         .get()
-        .then(snapshot => {
-          const projects = []
-          snapshot.docs.forEach(doc => {
-            const data = doc.data()
-            let proj = {
-              id: doc.id,
-              owner: data.owner,
-              name: data.name,
-              files: data.files,
-              collaborators: data.collaborators
-            }
-            projects.push(proj)
-          })
-          const uniqueProjects = projects.filter(function (project, index) {
-            return projects.indexOf(project) == index
-          })
-          return context.commit('setProjects', uniqueProjects)
+        .then(snapshot1 => {
+          getCollection('projects')
+            .where('collaborators', 'array-contains', user.email)
+            .get()
+            .then(snapshot2 => {
+              const projects = []
+              snapshot1.docs.forEach(doc => {
+                const data = doc.data()
+                const proj = {
+                  id: doc.id,
+                  owner: data.owner,
+                  name: data.name,
+                  files: data.files,
+                  collaborators: data.collaborators
+                }
+                projects.push(proj)
+              })
+              snapshot2.docs.forEach(doc => {
+                const data = doc.data()
+                const proj = {
+                  id: doc.id,
+                  owner: data.owner,
+                  name: data.name,
+                  files: data.files,
+                  collaborators: data.collaborators
+                }
+                projects.push(proj)
+              })
+              const uniqueProjects = projects.filter(function (project, index) {
+                return projects.indexOf(project) == index
+              })
+              console.log('uniqueProjects: ', uniqueProjects);
+              return context.commit('setProjects', uniqueProjects)
+            })
         })
     },
     updateProjectIndex(context, index) {

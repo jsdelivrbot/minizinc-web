@@ -53,7 +53,7 @@ body {
 
 .code-text {
 	font-family: Consolas, monaco, monospace;
-  margin-top: 18px !important;
+	margin-top: 18px !important;
 }
 
 .custom-container {
@@ -87,17 +87,20 @@ body {
 }
 
 .solve-button {
-  margin-left: 0;
+	margin-left: 0;
 }
 
 .add-collaborator {
-  margin-left: 15px;
+	margin-left: 15px;
 }
 
 .share-project-title {
-  font-size: 24px;
+	font-size: 24px;
 }
 
+.owner-text {
+	font-size: 10px;
+}
 </style>
 
 <template>
@@ -110,87 +113,146 @@ body {
               <v-icon dark>add</v-icon>
             </v-btn>
           </v-subheader>
-          <v-layout row wrap>
+          <v-layout row wrap="">
             <v-flex xs10 class="sidebar-input">
-              <v-text-field label="New Project" v-if="showNewProject" @keyup.enter="createProject" v-model="newProject"
-                autofocus dark></v-text-field>
+              <v-text-field
+                label="New Project"
+                v-if="showNewProject"
+                @keyup.enter="createProject"
+                v-model="newProject"
+                autofocus
+                dark
+              ></v-text-field>
             </v-flex>
           </v-layout>
-          <div v-if="projectsExist" >
-            <v-list-tile v-for="(project, index) in projects" :key="project.id" @click="switchProject(project, index)">
+          <div v-if="projectsExist">
+            <v-list-tile
+              v-for="(project, index) in projects"
+              :key="project.id"
+              @click="switchProject(project, index)"
+            >
               <v-list-tile-title v-if="!editingProject[index]" v-text="project.name"></v-list-tile-title>
-              <v-text-field v-if="editingProject[index]" @keyup.enter="editProject(project, index)" v-model="editedProjectName"
-                autofocus dark></v-text-field>
-
-              <v-menu bottom left>
-                <v-btn
-                  slot="activator"
-                  dark
-                  icon
-                  right
-                  fixed
-                >
+              <span
+                class="owner-text"
+                v-if="currentUser.email !== project.owner"
+                v-text="project.owner"
+              ></span>
+              <v-text-field
+                autoselect
+                v-if="editingProject[index]"
+                @keyup.enter="editProject(project, index)"
+                v-model="editedProjectName"
+                autofocus
+                dark
+              ></v-text-field>
+              <v-menu bottom left v-if="currentUser.email === project.owner">
+                <v-btn slot="activator" dark icon right fixed>
                   <v-icon>more_vert</v-icon>
                 </v-btn>
-
                 <v-list>
-                  <v-list-tile
-                    v-on:click.stop="drawerOpen=false;showShareProject=true"
-                  >
-                    <v-icon dark small>person_add</v-icon>&nbsp;<v-list-tile-title>Share</v-list-tile-title>
+                  <v-list-tile v-on:click.stop="drawerOpen=false;showShareProject=true">
+                    <v-icon dark small>person_add</v-icon>&nbsp;
+                    <v-list-tile-title>Share</v-list-tile-title>
                   </v-list-tile>
-                  <v-list-tile
-                    v-on:click.stop="startEditingProject(project, index)"
-                  >
-                    <v-icon dark small>edit</v-icon>&nbsp;<v-list-tile-title>Rename</v-list-tile-title>
+                  <v-list-tile v-on:click.stop="startEditingProject(project, index)">
+                    <v-icon dark small>edit</v-icon>&nbsp;
+                    <v-list-tile-title>Rename</v-list-tile-title>
                   </v-list-tile>
-                  <v-list-tile
-                    v-on:click.stop="deleteProject(project, index)"
-                  >
-                    <v-icon dark small>delete</v-icon>&nbsp;<v-list-tile-title>Delete</v-list-tile-title>
+                  <v-list-tile v-on:click.stop="deleteProject(project, index)">
+                    <v-icon dark small>delete</v-icon>&nbsp;
+                    <v-list-tile-title>Delete</v-list-tile-title>
                   </v-list-tile>
                 </v-list>
               </v-menu>
             </v-list-tile>
           </div>
           <v-subheader v-if="!projectsExist && !showNewProject">No projects exist. Create one!</v-subheader>
-
-          <v-subheader style="text-align: left;" v-if="projectsExist" class="sidebar-header files-header">Files
+          <v-subheader
+            style="text-align: left;"
+            v-if="projectsExist"
+            class="sidebar-header files-header"
+          >
+            Files
             in "{{selectedProject.name}}"
-            <v-btn fab fixed right dark small color="red" @click="showNewFile = !showNewFile">
+            <v-btn fab fixed right dark small color="red" @click="showNewFile = !showNewFile" v-if="currentUser.email === selectedProject.owner">
               <v-icon dark>add</v-icon>
             </v-btn>
           </v-subheader>
-          <v-layout row wrap>
+          <v-layout row wrap="">
             <v-flex xs10 class="sidebar-input">
-              <v-text-field label="New Project" v-if="showNewFile" @keyup.enter="createFile" v-model="newFile"
-                autofocus dark></v-text-field>
+              <v-text-field
+                label="New Project"
+                v-if="showNewFile"
+                @keyup.enter="createFile"
+                v-model="newFile"
+                autofocus
+                dark
+              ></v-text-field>
             </v-flex>
           </v-layout>
-          <div v-if="filesExist" >
-            <v-list-tile v-for="(file, index) in selectedProject.files" :key="file.id" class="clickable" @click="switchFile(file, index)">
+          <div v-if="filesExist">
+            <v-list-tile
+              v-for="(file, index) in selectedProject.files"
+              :key="file.id"
+              class="clickable"
+              @click="switchFile(file, index)"
+            >
               <v-list-tile-title v-if="!editingFile[index]" v-text="file.name"></v-list-tile-title>
-              <v-text-field v-if="editingFile[index]" @keyup.enter="editFile(file, index)" @click.stop v-model="editedFileName"
-                autofocus dark></v-text-field>
-              <v-btn fab right flat small class="edit-button" color="white" v-on:click.stop="startEditingFile(file, index)">
+              <v-text-field
+                v-if="editingFile[index]"
+                @keyup.enter="editFile(file, index)"
+                @click.stop
+                v-model="editedFileName"
+                autofocus
+                dark
+              ></v-text-field>
+              <v-btn
+                fab
+                right
+                flat
+                small
+                class="edit-button"
+                color="white"
+                v-on:click.stop="startEditingFile(file, index)"
+                v-if="currentUser.email === selectedProject.owner"
+              >
                 <v-icon dark>edit</v-icon>
               </v-btn>
-              <v-btn fab fixed right flat small color="white" v-on:click.stop="deleteFile(file, index)">
+              <v-btn
+                fab
+                fixed
+                right
+                flat
+                small
+                color="white"
+                v-on:click.stop="deleteFile(file, index)"
+                v-if="currentUser.email === selectedProject.owner"
+              >
                 <v-icon dark>delete</v-icon>
               </v-btn>
             </v-list-tile>
           </div>
-          <v-subheader v-if="projectsExist && !filesExist && !showNewFile">No
+          <v-subheader v-if="projectsExist && !filesExist && !showNewFile">
+            No
             files exist
-            yet. Create one!</v-subheader>
+            yet. Create one!
+          </v-subheader>
         </v-list>
-        <v-select :items="themes" label="Select Theme" outline v-on:change="selectTheme" class="theme-selector"></v-select>
+        <v-select
+          :items="themes"
+          label="Select Theme"
+          outline
+          v-on:change="selectTheme"
+          class="theme-selector"
+        ></v-select>
       </v-navigation-drawer>
       <v-toolbar color="red" fixed app>
         <v-toolbar-side-icon @click.stop="drawerOpen = !drawerOpen"></v-toolbar-side-icon>
         <v-icon class="mx-3">fab fa-youtube</v-icon>
         <v-toolbar-title class="mr-5 align-center">
-          <span class="title">MiniZinc Web IDE - {{selectedFile ? selectedFile.name : 'Please create a file to get started'}}</span>
+          <span
+            class="title"
+          >MiniZinc Web IDE - {{selectedFile ? selectedFile.name : 'Please create a file to get started'}}</span>
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-avatar size="45" color="grey lighten-4">
@@ -205,34 +267,51 @@ body {
         <v-container fluid fill-height class="remove-margin">
           <v-layout align-space-around>
             <v-flex xs8 fill-height fill-width>
-              <editor id="editor" v-model="codeEntered" lang="ruby" v-bind:theme="theme" @change="saveSelectedFile"></editor>
+              <editor
+                id="editor"
+                v-model="codeEntered"
+                lang="ruby"
+                v-bind:theme="theme"
+                @change="saveSelectedFile"
+              ></editor>
               <div v-if="projectsExist">
                 <v-dialog light v-model="showShareProject" max-width="500px">
                   <v-card>
-                    <v-card-title class="share-project-title">
-                      Share "{{selectedProject.name}}"
-                    </v-card-title>
-                      <v-list>
-                        <div v-if="selectedProject.collaborators.length > 0" >
-                          <v-flex xs9>
-                            <v-list-tile v-for="(collaborator, index) in selectedProject.collaborators" :key="collaborator" >
-                              <v-list-tile-title>{{collaborator}}</v-list-tile-title>
-                              <v-btn fab flat small v-on:click="removeCollaborator(index)">
-                                <v-icon dark>delete</v-icon>
-                              </v-btn>
-                            </v-list-tile>
-                          </v-flex>
-                        </div>
-                        <v-list-tile>
-                          <v-list-tile-title v-if="selectedProject.collaborators.length <= 0">No collaborators invited. Invited one!</v-list-tile-title>
-                        </v-list-tile>
-                      </v-list>
-                      <v-layout>
-                        <v-flex xs10 >
-                          <v-text-field class="add-collaborator" max-width="300px" label="New Collaborator's Email address" @keyup.enter="addCollaborator" v-model="newCollaboratorEmail"
-                            autofocus light></v-text-field>
+                    <v-card-title class="share-project-title">Share "{{selectedProject.name}}"</v-card-title>
+                    <v-list>
+                      <div v-if="selectedProject.collaborators.length > 0">
+                        <v-flex xs9>
+                          <v-list-tile
+                            v-for="(collaborator, index) in selectedProject.collaborators"
+                            :key="collaborator"
+                          >
+                            <v-list-tile-title>{{collaborator}}</v-list-tile-title>
+                            <v-btn fab flat small v-on:click="removeCollaborator(index)">
+                              <v-icon dark>delete</v-icon>
+                            </v-btn>
+                          </v-list-tile>
                         </v-flex>
-                      </v-layout>
+                      </div>
+                      <v-list-tile>
+                        <v-list-tile-title
+                          v-if="selectedProject.collaborators.length <= 0"
+                        >No collaborators invited. Invited one!</v-list-tile-title>
+                      </v-list-tile>
+                    </v-list>
+                    <v-layout>
+                      <v-flex xs10>
+                        <v-text-field
+                          class="add-collaborator"
+                          max-width="300px"
+                          label="New Collaborator's Email address"
+                          @keyup.enter="addCollaborator"
+                          v-model="newCollaboratorEmail"
+                          autofocus
+                          light
+                          :rules="[rules.required, rules.email]"
+                        ></v-text-field>
+                      </v-flex>
+                    </v-layout>
                     <v-card-actions>
                       <v-btn color="error" @click="showShareProject=false">Done</v-btn>
                     </v-card-actions>
@@ -246,16 +325,25 @@ body {
                   <p class="left-align code-text">minizinc</p>
                 </v-flex>
                 <v-flex xs4>
-                  <v-text-field class="inputs" label="Flags" placeholder="--solver Gecode" v-model="flags"></v-text-field>
+                  <v-text-field
+                    class="inputs"
+                    label="Flags"
+                    placeholder="--solver Gecode"
+                    v-model="flags"
+                  ></v-text-field>
                 </v-flex>
                 <v-flex xs5>
-                  <v-text-field class="inputs" label="Files" placeholder="model.mzn data.dzn" v-model="filesToSend"></v-text-field>
+                  <v-text-field
+                    class="inputs"
+                    label="Files"
+                    placeholder="model.mzn data.dzn"
+                    v-model="filesToSend"
+                  ></v-text-field>
                 </v-flex>
               </v-layout>
               <v-layout>
                 <v-btn left @click="sendScript()" color="error" class="solve-button">Solve</v-btn>
               </v-layout>
-
               <v-progress-circular center indeterminate color="red" v-if="awaitingScriptResponse"></v-progress-circular>
               <p class="left-align">{{consoleOutput}}</p>
             </v-flex>
@@ -264,9 +352,7 @@ body {
       </v-content>
       <v-snackbar v-model="snackbar" color="error" :timeout="6000" bottom>
         {{ snackbarText }}
-        <v-btn dark flat @click="undoDelete()">
-          Undo
-        </v-btn>
+        <v-btn dark flat @click="undoDelete()">Undo</v-btn>
       </v-snackbar>
     </v-app>
   </div>
@@ -350,7 +436,14 @@ body {
         editedFileName: '',
         projectCount: -1,
         fileCount: -1,
-        newCollaboratorEmail: ''
+        newCollaboratorEmail: '',
+        rules: {
+          required: value => !!value || 'Required.',
+          email: value => {
+            const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+            return pattern.test(value) || 'Invalid e-mail.'
+          }
+        }
       };
     },
     components: {
