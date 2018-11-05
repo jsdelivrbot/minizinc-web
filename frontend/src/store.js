@@ -177,6 +177,32 @@ output ["The resulting values are \\(x)."];
           }
         })
       })
+
+      projects.where('collaborators', 'array-contains', user.email).onSnapshot(snapshot => {
+        snapshot.docChanges().forEach(change => {
+          const source = change.doc.metadata.hasPendingWrites ?
+            'Local' :
+            'Server'
+          if (change.type === 'added' && source === 'Server') {
+            const payload = change.doc.data()
+            context.commit('addProject', {
+              id: payload.id,
+              name: payload.name,
+              owner: payload.owner,
+              files: payload.files,
+              collaborators: payload.collaborators
+            })
+          }
+          if (change.type === 'modified' && source === 'Server') {
+            const payload = change.doc.data()
+            context.commit('updateProject', payload)
+          }
+          if (change.type === 'removed' && source === 'Server') {
+            const payload = change.doc.data()
+            context.commit('deleteProject', payload.id)
+          }
+        })
+      })
     },
     addProject(context, payload) {
       getCollection('projects').add({
