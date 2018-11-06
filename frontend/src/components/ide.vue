@@ -152,7 +152,7 @@ body {
                   <v-icon>more_vert</v-icon>
                 </v-btn>
                 <v-list>
-                  <v-list-tile v-on:click.stop="drawerOpen=false;showShareProject=true">
+                  <v-list-tile v-on:click.stop="switchProject(project, index);drawerOpen=false;showShareProject=true">
                     <v-icon dark small>person_add</v-icon>&nbsp;
                     <v-list-tile-title>Share</v-list-tile-title>
                   </v-list-tile>
