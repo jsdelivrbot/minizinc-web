@@ -1,7 +1,10 @@
 <template>
   <div class="login">
+    <video autoplay muted loop id="myVideo">
+      <source src="https://storage.googleapis.com/coverr-main/mp4/Love-Coding.mp4" type="video/mp4">
+    </video>
   <v-layout row>
-    <v-flex xs12 sm6 offset-sm3>
+    <v-flex xs12 sm4 offset-sm4>
       <v-card class="login-card">
           <div class="centerize">
             <v-card-text>
@@ -73,5 +76,13 @@ export default {
 .my-header {
 	font-size: 24px;
 	margin: 20px;
+}
+
+#myVideo {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    min-width: 100%;
+    min-height: 100%;
 }
 </style>
