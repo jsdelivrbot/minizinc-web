@@ -14,8 +14,9 @@
 }
 
 .files-header {
-	font-size: 18px;
-	margin-top: 30px;
+  margin-top: 30px !important;
+	color: white !important;
+	font-size: 18px !important;
 }
 
 body {
@@ -174,7 +175,7 @@ body {
           <v-subheader
             style="text-align: left;"
             v-if="projectsExist"
-            class="sidebar-header files-header"
+            class="files-header"
           >
             Files
             in "{{selectedProject.name}}"
