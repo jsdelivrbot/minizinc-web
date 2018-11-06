@@ -8,8 +8,9 @@
 }
 
 .sidebar-header {
-	font-size: 24px;
-	margin-top: 30px;
+	font-size: 24px !important;
+	margin-top: 30px !important;
+  color: white !important;
 }
 
 .files-header {
@@ -46,9 +47,12 @@ body {
 
 .inputs {
 	margin-left: 10px;
-	margin-top: 20px;
 	width: 90%;
 	font-family: Consolas, monaco, monospace;
+}
+
+.inputs-container {
+  margin-top: 15px;
 }
 
 .code-text {
@@ -76,10 +80,7 @@ body {
 }
 
 .theme-selector {
-	position: fixed;
-	bottom: 0;
-	margin-bottom: 100px;
-	width: 90%;
+  margin-top: 30px;
 }
 
 .edit-button {
@@ -87,7 +88,8 @@ body {
 }
 
 .solve-button {
-	margin-left: 0;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .add-collaborator {
@@ -238,13 +240,16 @@ body {
             yet. Create one!
           </v-subheader>
         </v-list>
-        <v-select
-          :items="themes"
-          label="Select Theme"
-          outline
-          v-on:change="selectTheme"
-          class="theme-selector"
-        ></v-select>
+        <v-layout align-end justify-center row class="theme-selector">
+          <v-select
+            :items="themes"
+            label="Select Theme"
+            outline
+            v-on:change="selectTheme"
+            value="vibrant_ink"
+            class="theme-selector"
+          ></v-select>
+        </v-layout>
       </v-navigation-drawer>
       <v-toolbar color="red" fixed app>
         <v-toolbar-side-icon @click.stop="drawerOpen = !drawerOpen"></v-toolbar-side-icon>
@@ -321,25 +326,21 @@ body {
             </v-flex>
             <v-flex xs4 fill-height fill-width>
               <v-layout>
-                <v-flex xs3>
-                  <p class="left-align code-text">minizinc</p>
-                </v-flex>
-                <v-flex xs4>
+                <p class="left-align code-text">minizinc</p>
+                <v-layout align-center justify-center row class="inputs-container">
                   <v-text-field
                     class="inputs"
                     label="Flags"
                     placeholder="--solver Gecode"
                     v-model="flags"
                   ></v-text-field>
-                </v-flex>
-                <v-flex xs5>
                   <v-text-field
                     class="inputs"
                     label="Files"
                     placeholder="model.mzn data.dzn"
                     v-model="filesToSend"
                   ></v-text-field>
-                </v-flex>
+                </v-layout>
               </v-layout>
               <v-layout>
                 <v-btn left @click="sendScript()" color="error" class="solve-button">Solve</v-btn>
