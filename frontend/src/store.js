@@ -64,6 +64,7 @@ export default new Vuex.Store({
             console.log('Previously Logged in: ', user.data())
             userState = user.data()
             dispatch('getProjects', userState)
+            dispatch('initRealtimeListeners', payload)
           } else {
             userState = {
               displayName: payload.displayName,
@@ -75,7 +76,6 @@ export default new Vuex.Store({
             dispatch('initTestProject', payload.email)
           }
           commit('setUser', userState)
-          dispatch('initRealtimeListeners', payload)
         })
         .catch(err => {
           console.log('err: ', err)
@@ -105,43 +105,10 @@ output ["The resulting values are \\(x)."];
           }
         ]
       }
-      const projectsRef = getCollection('projects')
-      const projects = []
-      projectsRef
-        .add(newUserProject)
-        .then(project => {
-          getCollection('projects')
-            .where('collaborators', 'array-contains', user.email)
-            .get()
-            .then(collaboratingOn => {
-              projectsRef.doc(project.id).get().then(newProject => {
-                const data = newProject.data()
-                const proj = {
-                  id: newProject.id,
-                  owner: data.owner,
-                  name: data.name,
-                  files: data.files,
-                  collaborators: data.collaborators
-                }
-                projects.push(proj)
-                collaboratingOn.docs.forEach(doc => {
-                  const data = doc.data()
-                  const proj = {
-                    id: doc.id,
-                    owner: data.owner,
-                    name: data.name,
-                    files: data.files,
-                    collaborators: data.collaborators
-                  }
-                  projects.push(proj)
-                })
-                const uniqueProjects = projects.filter(function (project, index) {
-                  return projects.indexOf(project) == index
-                })
-                console.log('uniqueProjects: ', uniqueProjects);
-                return context.commit('setProjects', uniqueProjects)
-              })
-            })
+      getCollection('projects').add(newUserProject)
+        .then(() => {
+          context.dispatch('getProjects', {email})
+          context.dispatch('initRealtimeListeners', {email})
         })
     },
     logout({
