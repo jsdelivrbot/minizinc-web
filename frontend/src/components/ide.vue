@@ -10,7 +10,7 @@
 .sidebar-header {
 	font-size: 24px !important;
 	margin-top: 30px !important;
-  color: white !important;
+	color: white !important;
 }
 
 .files-header {
@@ -52,7 +52,7 @@ body {
 }
 
 .inputs-container {
-  margin-top: 15px;
+	margin-top: 15px;
 }
 
 .code-text {
@@ -80,7 +80,7 @@ body {
 }
 
 .theme-selector {
-  margin-top: 30px;
+	margin-top: 30px;
 }
 
 .edit-button {
@@ -88,8 +88,8 @@ body {
 }
 
 .solve-button {
-  padding: 0 !important;
-  margin: 0 !important;
+	padding: 0 !important;
+	margin: 0 !important;
 }
 
 .add-collaborator {
@@ -152,7 +152,9 @@ body {
                   <v-icon>more_vert</v-icon>
                 </v-btn>
                 <v-list>
-                  <v-list-tile v-on:click.stop="switchProject(project, index);drawerOpen=false;showShareProject=true">
+                  <v-list-tile
+                    v-on:click.stop="switchProject(project, index);drawerOpen=false;showShareProject=true"
+                  >
                     <v-icon dark small>person_add</v-icon>&nbsp;
                     <v-list-tile-title>Share</v-list-tile-title>
                   </v-list-tile>
@@ -176,7 +178,16 @@ body {
           >
             Files
             in "{{selectedProject.name}}"
-            <v-btn fab fixed right dark small color="red" @click="showNewFile = !showNewFile" v-if="currentUser.email === selectedProject.owner">
+            <v-btn
+              fab
+              fixed
+              right
+              dark
+              small
+              color="red"
+              @click="showNewFile = !showNewFile"
+              v-if="currentUser.email === selectedProject.owner"
+            >
               <v-icon dark>add</v-icon>
             </v-btn>
           </v-subheader>
