@@ -108,6 +108,10 @@ body {
 .owner-text {
 	font-size: 10px;
 }
+
+.loading-spinner {
+  margin-top: 50px;
+}
 </style>
 
 <template>
@@ -373,7 +377,7 @@ body {
               <v-layout>
                 <v-btn left @click="sendScript()" color="error" class="solve-button">Solve</v-btn>
               </v-layout>
-              <v-progress-circular center indeterminate color="red" v-if="awaitingScriptResponse"></v-progress-circular>
+              <v-progress-circular center indeterminate color="red" v-if="awaitingScriptResponse" :size="70" :width="7" class="loading-spinner"></v-progress-circular>
               <p class="left-align">{{consoleOutput}}</p>
             </v-flex>
           </v-layout>
