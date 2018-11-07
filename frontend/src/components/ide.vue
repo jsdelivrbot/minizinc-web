@@ -531,7 +531,6 @@ body {
         this.theme = theme
       },
       switchFile(file, index, ) {
-        this.saveSelectedFile()
         this.loading = true
         this.$store.dispatch('updateFileIndex', index)
       },
@@ -580,7 +579,6 @@ body {
         this.$store.dispatch('deleteProject', project.id)
       },
       switchProject(project, index) {
-        this.saveSelectedFile()
         this.loading = true
         this.$store.dispatch('updateProjectIndex', index)
         this.$store.dispatch('updateFileIndex', 0)
@@ -638,7 +636,6 @@ body {
       sendScript() {
         this.awaitingScriptResponse = true
         this.consoleOutput = ''
-        this.saveSelectedFile()
         let self = this;
         let tempFiles = [];
         for (let file of self.selectedProject.files) {
@@ -664,9 +661,15 @@ body {
             files: tempFiles
           })
           .then(res => {
+            console.log('res: ', res);
             let response = res.data.replace(/-/g, '');
             response = response.replace(/=/g, '');
             self.consoleOutput = response;
+            this.awaitingScriptResponse = false
+          })
+          .catch(err => {
+            console.log('err: ', err);
+            self.consoleOutput = err;
             this.awaitingScriptResponse = false
           });
       },

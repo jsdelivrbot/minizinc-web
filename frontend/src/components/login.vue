@@ -3,9 +3,9 @@
     <video autoplay muted loop id="myVideo">
       <source src="https://storage.googleapis.com/coverr-main/mp4/Love-Coding.mp4" type="video/mp4">
     </video>
-  <v-layout row>
-    <v-flex xs12 sm4 offset-sm4>
-      <v-card class="login-card">
+    <v-layout row>
+      <v-flex xs12 sm4 offset-sm4>
+        <v-card class="login-card">
           <div class="centerize">
             <v-card-text>
               <div class="centerize my-header">Welcome to Mini Zinc Web IDE</div>
@@ -13,38 +13,50 @@
             </v-card-text>
             <div class="headline"></div>
           </div>
-        <v-card-actions class="centerize">
-          <div id="firebaseui-auth-container"></div>
-        </v-card-actions>
-      </v-card>
-    </v-flex>
-  </v-layout>
+          <v-card-actions class="centerize">
+            <div v-if="!loading" class="add-margin">
+              <v-btn @click="signIn" large dark color="red">
+                <!-- <v-icon dark left>remove_circle</v-icon> -->
+                Sign in with Google
+              </v-btn>
+            </div>
+            <div v-if="loading" class="add-margin">
+              <v-progress-circular :size="70" :width="7" color="red" indeterminate v-if="loading" ></v-progress-circular>
+            </div>
+          </v-card-actions>
+        </v-card>
+      </v-flex>
+    </v-layout>
   </div>
 </template>
 
 <script>
 import firebase from 'firebase'
 import firebaseui from 'firebaseui'
-// import {config} from '../helpers/firebaseConfig'
 
 export default {
   name: 'login',
   data: function () {
-    return {}
+    return {
+      loading: true
+    }
   },
   methods: {
-    signIn () {
+    signIn() {
+      const self = this
+      const provider = new firebase.auth.GoogleAuthProvider()
+      firebase.auth().signInWithRedirect(provider).then((result) => {
+        console.log('result: ', result);
+        this.user = result.user
+        self.$router.push({
+            name: 'ide'
+          })
+      }).catch(err => console.log(error))
+      this.loading = true
     }
   },
   mounted () {
-    const uiConfig = {
-      signInSuccessUrl: '/',
-      signInOptions: [
-        firebase.auth.GoogleAuthProvider.PROVIDER_ID
-      ]
-    }
-    const ui = new firebaseui.auth.AuthUI(firebase.auth())
-    ui.start('#firebaseui-auth-container', uiConfig)
+    this.loading = false;
   }
 }
 
@@ -79,10 +91,13 @@ export default {
 }
 
 #myVideo {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    min-width: 100%;
-    min-height: 100%;
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	min-width: 100%;
+	min-height: 100%;
+}
+.add-margin {
+  margin-bottom: 20px;
 }
 </style>
