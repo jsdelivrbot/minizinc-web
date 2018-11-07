@@ -85,7 +85,7 @@ body {
 }
 
 .edit-button {
-	margin-right: 25px;
+	margin-right: 25px !important;
 }
 
 .delete-button:hover {
