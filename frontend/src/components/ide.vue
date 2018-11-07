@@ -88,6 +88,10 @@ body {
 	margin-right: 25px;
 }
 
+.delete-button:hover {
+  color: red;
+}
+
 .solve-button {
 	padding: 0 !important;
 	margin: 0 !important;
@@ -155,16 +159,24 @@ body {
                 <v-list>
                   <v-list-tile
                     v-on:click.stop="switchProject(project, index);drawerOpen=false;showShareProject=true"
+                    @mouseover="shareProjColor = 'blue'"
+                    @mouseleave="shareProjColor = 'white'"
                   >
-                    <v-icon dark small>person_add</v-icon>&nbsp;
+                    <v-icon dark small :color="shareProjColor">person_add</v-icon>&nbsp;
                     <v-list-tile-title>Share</v-list-tile-title>
                   </v-list-tile>
-                  <v-list-tile v-on:click.stop="startEditingProject(project, index)">
-                    <v-icon dark small>edit</v-icon>&nbsp;
+                  <v-list-tile v-on:click.stop="startEditingProject(project, index)"
+                    @mouseover="editProjColor = 'yellow'"
+                    @mouseleave="editProjColor = 'white'"
+                    >
+                    <v-icon dark small :color="editProjColor">edit</v-icon>&nbsp;
                     <v-list-tile-title>Rename</v-list-tile-title>
                   </v-list-tile>
-                  <v-list-tile v-on:click.stop="deleteProject(project, index)">
-                    <v-icon dark small>delete</v-icon>&nbsp;
+                  <v-list-tile v-on:click.stop="deleteProject(project, index)"
+                    @mouseover="deleteProjColor = 'red'"
+                    @mouseleave="deleteProjColor = 'white'"
+                    >
+                    <v-icon dark small class="delete-button" :color="deleteProjColor">delete</v-icon>&nbsp;
                     <v-list-tile-title>Delete</v-list-tile-title>
                   </v-list-tile>
                 </v-list>
@@ -226,7 +238,9 @@ body {
                 flat
                 small
                 class="edit-button"
-                color="white"
+                :color="editFileColors[index]"
+                @mouseover="editFileColorChange(index, 'yellow')"
+                @mouseleave="editFileColorChange(index, 'white')"
                 v-on:click.stop="startEditingFile(file, index)"
                 v-if="currentUser.email === selectedProject.owner"
               >
@@ -238,7 +252,9 @@ body {
                 right
                 flat
                 small
-                color="white"
+                :color="deleteFileColors[index]"
+                @mouseover="deleteFileColorChange(index, 'red')"
+                @mouseleave="deleteFileColorChange(index, 'white')"
                 v-on:click.stop="deleteFile(file, index)"
                 v-if="currentUser.email === selectedProject.owner"
               >
@@ -456,13 +472,24 @@ body {
             const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
             return pattern.test(value) || 'Invalid e-mail.'
           }
-        }
+        },
+        deleteFileColors: [],
+        editFileColors: [],
+        deleteProjColor: 'white',
+        editProjColor: 'white',
+        shareProjColor: 'white'
       };
     },
     components: {
       editor: require('vue2-ace-editor'),
     },
     methods: {
+      editFileColorChange(index, color){
+        this.$set(this.editFileColors, index, color)
+      },
+      deleteFileColorChange(index, color){
+        this.$set(this.deleteFileColors, index, color)
+      },
       addCollaborator() {
         let copy = {...this.selectedProject}
         copy.collaborators.push(this.newCollaboratorEmail)
@@ -722,8 +749,12 @@ body {
         if (numProjects !== this.projectCount) {
           this.projectCount = numProjects
           this.editingProject = []
+          this.deleteFileColors = []
+          this.editFileColors = []
           for(let i = 0; i < numProjects; i++) {
             this.editingProject.push(false)
+            this.deleteFileColors.push('white')
+            this.editFileColors.push('white')
           }
         }
         return this.$store.getters.projects;
