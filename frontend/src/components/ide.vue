@@ -287,10 +287,10 @@ body {
           <div>Version 1.0.0</div>
         </v-layout>
         <v-layout align-end justify-center row>
-          <v-btn dark color="red" href="https://goo.gl/forms/4zdC1AM3zuYQLtSx2" target="_blank">Report a Bug</v-btn>
+          <v-btn dark color="red" @click="showBugReport = true" target="_blank">Report a Bug</v-btn>
         </v-layout>
         <v-layout align-end justify-center row>
-          <v-btn dark color="red" href="https://goo.gl/forms/4zdC1AM3zuYQLtSx2" target="_blank">Request Feature</v-btn>
+          <v-btn dark color="red" @click="showBugReport = true" target="_blank">Request Feature</v-btn>
         </v-layout>
       </v-navigation-drawer>
       <v-toolbar color="red" fixed app>
@@ -364,6 +364,9 @@ body {
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
+
+                <v-dialog light v-model="showBugReport" max-width="640">
+                  <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSet0L6_CBQA0nnH-E2YYiyMbiSDCsEt-pAXEcILY0Bb8C7E-Q/viewform?embedded=true" width="640" height="700" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>                </v-dialog>
               </div>
             </v-flex>
             <v-flex xs4 fill-height fill-width>
@@ -491,7 +494,8 @@ body {
         editFileColors: [],
         deleteProjColor: 'white',
         editProjColor: 'white',
-        shareProjColor: 'white'
+        shareProjColor: 'white',
+        showBugReport: false
       };
     },
     components: {
