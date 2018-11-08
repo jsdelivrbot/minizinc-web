@@ -7,6 +7,10 @@
 	color: #2c3e50;
 }
 
+.console-output {
+  white-space: pre-wrap;
+}
+
 .sidebar-header {
 	font-size: 24px !important;
 	margin-top: 30px !important;
@@ -391,7 +395,7 @@ body {
                 <v-btn left @click="sendScript()" color="error" class="solve-button">Solve</v-btn>
               </v-layout>
               <v-progress-circular center indeterminate color="red" v-if="awaitingScriptResponse" :size="70" :width="7" class="loading-spinner"></v-progress-circular>
-              <p class="left-align">{{consoleOutput}}</p>
+              <div class="left-align console-output">{{consoleOutput}}</div>
             </v-flex>
           </v-layout>
         </v-container>
@@ -680,16 +684,17 @@ body {
           })
           .then(res => {
             console.log('res: ', res);
-            let response = res.data.replace(/-/g, '');
-            response = response.replace(/=/g, '');
-            self.consoleOutput = response;
-            this.awaitingScriptResponse = false
+            if(!res.data.error) {
+              let response = res.data.message.replace(/-/g, '');
+              response = response.replace(/=/g, '');
+              self.consoleOutput = response;
+              this.awaitingScriptResponse = false
+            }
+            else {
+              self.consoleOutput = res.data.message;
+              this.awaitingScriptResponse = false
+            }
           })
-          .catch(err => {
-            console.log('err: ', err);
-            self.consoleOutput = err;
-            this.awaitingScriptResponse = false
-          });
       },
       loadAllThemes() {
         require('brace/mode/ruby');

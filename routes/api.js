@@ -33,12 +33,16 @@ router.post('/run-zinc', (req, res) => {
 	cmd.get(`minizinc ${flags.join(' ')} ${tmpFiles.join(' ')}`, function(
 		err,
 		data,
+		stderr,
 	) {
 		if (!err) {
 			console.log('the node-cmd returned with:\n\n', data);
-			res.send(data);
+			res.send({ message: data, error: false });
 		} else {
-			console.log('error', err);
+			console.log('error: ', stderr);
+			let response = stderr;
+			response = response.replace('./tmp/', ''); //remove tmp folder stuff
+			res.send({ message: response, error: true });
 		}
 		tmpFiles.forEach(file => {
 			fs.unlink(file, () => {}); // delete files after computation
