@@ -287,10 +287,10 @@ body {
           <div>Version 1.0.0</div>
         </v-layout>
         <v-layout align-end justify-center row>
-          <v-btn dark color="red" @click="showBugReport = true" target="_blank">Report a Bug</v-btn>
+          <v-btn dark color="red" @click="drawerOpen = false; showBugReport = true" target="_blank">Report a Bug</v-btn>
         </v-layout>
         <v-layout align-end justify-center row>
-          <v-btn dark color="red" @click="showBugReport = true" target="_blank">Request Feature</v-btn>
+          <v-btn dark color="red" @click="drawerOpen = false; showBugReport = true" target="_blank">Request Feature</v-btn>
         </v-layout>
       </v-navigation-drawer>
       <v-toolbar color="red" fixed app>
