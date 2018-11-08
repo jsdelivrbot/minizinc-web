@@ -1,6 +1,6 @@
 {
 	"name": "minizinc-web",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"description": "A web IDE replacement for minizinc desktop IDE.",
 	"main": "server.js",
 	"scripts": {

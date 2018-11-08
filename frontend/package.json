@@ -1,6 +1,5 @@
 {
   "name": "new-frontend",
-  "version": "1.0.0",
   "description": "Minizinc Web IDE",
   "author": "Harry Thomas",
   "private": true,
