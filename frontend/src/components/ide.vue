@@ -282,6 +282,16 @@ body {
             class="theme-selector"
           ></v-select>
         </v-layout>
+
+        <v-layout align-end justify-center row>
+          <div>Version 1.0.0</div>
+        </v-layout>
+        <v-layout align-end justify-center row>
+          <v-btn dark color="red" href="https://goo.gl/forms/4zdC1AM3zuYQLtSx2" target="_blank">Report a Bug</v-btn>
+        </v-layout>
+        <v-layout align-end justify-center row>
+          <v-btn dark color="red" href="https://goo.gl/forms/4zdC1AM3zuYQLtSx2" target="_blank">Request Feature</v-btn>
+        </v-layout>
       </v-navigation-drawer>
       <v-toolbar color="red" fixed app>
         <v-toolbar-side-icon @click.stop="drawerOpen = !drawerOpen"></v-toolbar-side-icon>
