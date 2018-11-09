@@ -813,6 +813,18 @@ body {
         }
         return null
       }
+    },
+    mounted() {
+      const self = this
+      window.addEventListener("keydown", e => {
+        console.log('e: ', e);
+        if ((e.ctrlKey || e.metaKey) && (e.which == 83 || e.which == 13)) {
+          event.preventDefault();
+          self.sendScript()
+        }
+
+
+      });
     }
   };
 
