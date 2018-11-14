@@ -207,7 +207,6 @@ body {
               small
               color="red"
               @click="showNewFile = !showNewFile"
-              v-if="currentUser.email === selectedProject.owner"
             >
               <v-icon dark>add</v-icon>
             </v-btn>
@@ -215,7 +214,7 @@ body {
           <v-layout row wrap="">
             <v-flex xs10 class="sidebar-input">
               <v-text-field
-                label="New Project"
+                label="New File"
                 v-if="showNewFile"
                 @keyup.enter="createFile"
                 v-model="newFile"
@@ -250,7 +249,6 @@ body {
                 @mouseover="editFileColorChange(index, 'yellow')"
                 @mouseleave="editFileColorChange(index, 'white')"
                 v-on:click.stop="startEditingFile(file, index)"
-                v-if="currentUser.email === selectedProject.owner"
               >
                 <v-icon dark>edit</v-icon>
               </v-btn>
@@ -264,7 +262,6 @@ body {
                 @mouseover="deleteFileColorChange(index, 'red')"
                 @mouseleave="deleteFileColorChange(index, 'white')"
                 v-on:click.stop="deleteFile(file, index)"
-                v-if="currentUser.email === selectedProject.owner"
               >
                 <v-icon dark>delete</v-icon>
               </v-btn>
