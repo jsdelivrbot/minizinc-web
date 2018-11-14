@@ -288,7 +288,7 @@ body {
         </v-layout>
 
         <v-layout align-end justify-center row>
-          <div>Version 1.0.0</div>
+          <div>Version 1.0.1</div>
         </v-layout>
         <v-layout align-end justify-center row>
           <v-btn dark color="red" @click="drawerOpen = false; showBugReport = true" target="_blank">Report a Bug</v-btn>
@@ -321,7 +321,7 @@ body {
               <editor
                 id="editor"
                 v-model="codeEntered"
-                lang="ruby"
+                :lang="mode"
                 v-bind:theme="theme"
                 @change="saveSelectedFile"
               ></editor>
@@ -499,7 +499,8 @@ body {
         deleteProjColor: 'white',
         editProjColor: 'white',
         shareProjColor: 'white',
-        showBugReport: false
+        showBugReport: false,
+        mode: 'ruby'
       };
     },
     components: {
@@ -698,6 +699,9 @@ body {
       },
       loadAllThemes() {
         require('brace/mode/ruby');
+        require('brace/mode/json');
+        require('brace/mode/javascript');
+        require('brace/mode/text');
         require('brace/theme/twilight');
         require('brace/theme/ambiance');
         require('brace/theme/chaos');
@@ -809,6 +813,22 @@ body {
         if(!this.loading) {
           this.filesExist = this.selectedProject.files.length > 0
           this.codeEntered = this.selectedProject.files[this.$store.getters.selectedFileIndex].code
+          const currentFileType = this.selectedProject.files[this.$store.getters.selectedFileIndex].name.split('.').pop()
+          switch (currentFileType) {
+            case "mzn":
+            case "dzn":
+              this.mode = 'ruby'
+              break
+            case "json":
+              this.mode = 'json'
+              break
+            case "js":
+              this.mode = 'javascript'
+              break
+            default:
+              this.mode = 'text'
+              break
+          }
           return this.selectedProject.files[this.$store.getters.selectedFileIndex] || null
         }
         return null
@@ -819,7 +839,7 @@ body {
       window.addEventListener("keydown", e => {
         console.log('e: ', e);
         if ((e.ctrlKey || e.metaKey) && (e.which == 83 || e.which == 13)) {
-          event.preventDefault();
+          event.preventDefault()
           self.sendScript()
         }
 
