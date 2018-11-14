@@ -398,6 +398,7 @@ body {
                         class="inputs files-selector"
                         v-model="selectedFilesToSend"
                         :items="filesToSend"
+                        color="red"
                         attach
                         chips
                         label="Files to send"
