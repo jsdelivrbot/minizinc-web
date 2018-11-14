@@ -53,16 +53,17 @@ body {
 .inputs {
 	margin-left: 10px;
 	width: 90%;
+  margin-top: 15px !important;
 	font-family: Consolas, monaco, monospace;
 }
 
 .files-selector {
   margin-top: 0;
-  padding-top: 5px !important;
+  /* padding-top: 5px !important; */
 }
 
 .inputs-container {
-	margin-top: 15px;
+	/* margin-top: 15px; */
 }
 
 .code-text {
@@ -395,11 +396,11 @@ body {
                     </v-flex>
                     <v-flex xs7>
                       <v-select
-                        class="inputs files-selector"
+                        class="files-selector"
                         v-model="selectedFilesToSend"
                         :items="filesToSend"
                         color="red"
-                        attach
+                        box
                         chips
                         label="Files to send"
                         multiple
