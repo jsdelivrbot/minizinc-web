@@ -58,7 +58,7 @@ body {
 
 .files-selector {
   margin-top: 0;
-  padding-top: 5px;
+  padding-top: 5px !important;
 }
 
 .inputs-container {
