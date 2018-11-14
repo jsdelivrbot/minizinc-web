@@ -8,7 +8,7 @@
 }
 
 .console-output {
-  white-space: pre-wrap;
+	white-space: pre-wrap;
 }
 
 .sidebar-header {
@@ -18,7 +18,7 @@
 }
 
 .files-header {
-  margin-top: 30px !important;
+	margin-top: 30px !important;
 	color: white !important;
 	font-size: 18px !important;
 }
@@ -54,6 +54,11 @@ body {
 	margin-left: 10px;
 	width: 90%;
 	font-family: Consolas, monaco, monospace;
+}
+
+.files-selector {
+  margin-top: 0;
+  padding-top: 5px;
 }
 
 .inputs-container {
@@ -93,7 +98,7 @@ body {
 }
 
 .delete-button:hover {
-  color: red;
+	color: red;
 }
 
 .solve-button {
@@ -114,7 +119,7 @@ body {
 }
 
 .loading-spinner {
-  margin-top: 50px;
+	margin-top: 50px;
 }
 </style>
 
@@ -173,17 +178,19 @@ body {
                     <v-icon dark small :color="shareProjColor">person_add</v-icon>&nbsp;
                     <v-list-tile-title>Share</v-list-tile-title>
                   </v-list-tile>
-                  <v-list-tile v-on:click.stop="startEditingProject(project, index)"
+                  <v-list-tile
+                    v-on:click.stop="startEditingProject(project, index)"
                     @mouseover="editProjColor = 'yellow'"
                     @mouseleave="editProjColor = 'white'"
-                    >
+                  >
                     <v-icon dark small :color="editProjColor">edit</v-icon>&nbsp;
                     <v-list-tile-title>Rename</v-list-tile-title>
                   </v-list-tile>
-                  <v-list-tile v-on:click.stop="deleteProject(project, index)"
+                  <v-list-tile
+                    v-on:click.stop="deleteProject(project, index)"
                     @mouseover="deleteProjColor = 'red'"
                     @mouseleave="deleteProjColor = 'white'"
-                    >
+                  >
                     <v-icon dark small class="delete-button" :color="deleteProjColor">delete</v-icon>&nbsp;
                     <v-list-tile-title>Delete</v-list-tile-title>
                   </v-list-tile>
@@ -192,22 +199,10 @@ body {
             </v-list-tile>
           </div>
           <v-subheader v-if="!projectsExist && !showNewProject">No projects exist. Create one!</v-subheader>
-          <v-subheader
-            style="text-align: left;"
-            v-if="projectsExist"
-            class="files-header"
-          >
+          <v-subheader style="text-align: left;" v-if="projectsExist" class="files-header">
             Files
             in "{{selectedProject.name}}"
-            <v-btn
-              fab
-              fixed
-              right
-              dark
-              small
-              color="red"
-              @click="showNewFile = !showNewFile"
-            >
+            <v-btn fab fixed right dark small color="red" @click="showNewFile = !showNewFile">
               <v-icon dark>add</v-icon>
             </v-btn>
           </v-subheader>
@@ -283,15 +278,24 @@ body {
             class="theme-selector"
           ></v-select>
         </v-layout>
-
         <v-layout align-end justify-center row>
           <div>Version 1.0.1</div>
         </v-layout>
         <v-layout align-end justify-center row>
-          <v-btn dark color="red" @click="drawerOpen = false; showBugReport = true" target="_blank">Report a Bug</v-btn>
+          <v-btn
+            dark
+            color="red"
+            @click="drawerOpen = false; showBugReport = true"
+            target="_blank"
+          >Report a Bug</v-btn>
         </v-layout>
         <v-layout align-end justify-center row>
-          <v-btn dark color="red" @click="drawerOpen = false; showBugReport = true" target="_blank">Request Feature</v-btn>
+          <v-btn
+            dark
+            color="red"
+            @click="drawerOpen = false; showBugReport = true"
+            target="_blank"
+          >Request Feature</v-btn>
         </v-layout>
       </v-navigation-drawer>
       <v-toolbar color="red" fixed app>
@@ -365,33 +369,56 @@ body {
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
-
                 <v-dialog light v-model="showBugReport" max-width="640">
-                  <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSet0L6_CBQA0nnH-E2YYiyMbiSDCsEt-pAXEcILY0Bb8C7E-Q/viewform?embedded=true" width="640" height="700" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>                </v-dialog>
+                  <iframe
+                    src="https://docs.google.com/forms/d/e/1FAIpQLSet0L6_CBQA0nnH-E2YYiyMbiSDCsEt-pAXEcILY0Bb8C7E-Q/viewform?embedded=true"
+                    width="640"
+                    height="700"
+                    frameborder="0"
+                    marginheight="0"
+                    marginwidth="0"
+                  >Loading...</iframe>
+                </v-dialog>
               </div>
             </v-flex>
             <v-flex xs4 fill-height fill-width>
               <v-layout>
-                <p class="left-align code-text">minizinc</p>
-                <v-layout align-center justify-center row class="inputs-container">
-                  <v-text-field
-                    class="inputs"
-                    label="Flags"
-                    placeholder="--solver Gecode"
-                    v-model="flags"
-                  ></v-text-field>
-                  <v-text-field
-                    class="inputs"
-                    label="Files"
-                    placeholder="model.mzn data.dzn"
-                    v-model="filesToSend"
-                  ></v-text-field>
-                </v-layout>
+                <v-flex xs12>
+                  <v-layout align-center justify-center row class="inputs-container">
+                    <v-flex xs5>
+                      <v-text-field
+                        class="inputs"
+                        label="Flags"
+                        placeholder="--solver Gecode"
+                        v-model="flags"
+                      ></v-text-field>
+                    </v-flex>
+                    <v-flex xs7>
+                      <v-select
+                        class="inputs files-selector"
+                        v-model="selectedFilesToSend"
+                        :items="filesToSend"
+                        attach
+                        chips
+                        label="Files to send"
+                        multiple
+                      ></v-select>
+                    </v-flex>
+                  </v-layout>
+                </v-flex>
               </v-layout>
               <v-layout>
                 <v-btn left @click="sendScript()" color="error" class="solve-button">Solve</v-btn>
               </v-layout>
-              <v-progress-circular center indeterminate color="red" v-if="awaitingScriptResponse" :size="70" :width="7" class="loading-spinner"></v-progress-circular>
+              <v-progress-circular
+                center
+                indeterminate
+                color="red"
+                v-if="awaitingScriptResponse"
+                :size="70"
+                :width="7"
+                class="loading-spinner"
+              ></v-progress-circular>
               <div class="left-align console-output">{{consoleOutput}}</div>
             </v-flex>
           </v-layout>
@@ -419,7 +446,7 @@ body {
         drawerOpen: false,
         theme: 'vibrant_ink',
         flags: '--solver Gecode',
-        filesToSend: 'model.mzn data.dzn',
+        // filesToSend: 'model.mzn data.dzn',
         showShareProject: false,
         consoleOutput: '',
         codeEntered: '',
@@ -497,7 +524,9 @@ body {
         editProjColor: 'white',
         shareProjColor: 'white',
         showBugReport: false,
-        mode: 'ruby'
+        mode: 'ruby',
+        filesToSend: [],
+        selectedFilesToSend: []
       };
     },
     components: {
@@ -650,7 +679,7 @@ body {
         if (this.selectedFile.code !== this.codeEntered) {
           copy.files[this.$store.getters.selectedFileIndex].code = this.codeEntered
           this.$store.dispatch('updateProject', copy)
-          console.log('updating code')
+
         }
       },
       sendScript() {
@@ -659,7 +688,7 @@ body {
         let self = this;
         let tempFiles = [];
         for (let file of self.selectedProject.files) {
-          if (self.filesToSend.indexOf(file.name) > -1) {
+          if (self.selectedFilesToSend.indexOf(file.name) > -1) {
             tempFiles.push(file)
           }
         }
@@ -681,7 +710,7 @@ body {
             files: tempFiles
           })
           .then(res => {
-            console.log('res: ', res);
+
             if(!res.data.error) {
               let response = res.data.message.replace(/-/g, '');
               response = response.replace(/=/g, '');
@@ -796,6 +825,9 @@ body {
             this.editingFile.push(false)
           }
         }
+        this.filesToSend = this.projects[this.$store.getters.selectedProjectIndex].files.map(file => file.name)
+
+
         return this.projects[this.$store.getters.selectedProjectIndex]
       },
       selectedFile() {
@@ -834,7 +866,7 @@ body {
     mounted() {
       const self = this
       window.addEventListener("keydown", e => {
-        console.log('e: ', e);
+
         if ((e.ctrlKey || e.metaKey) && (e.which == 83 || e.which == 13)) {
           event.preventDefault()
           self.sendScript()
