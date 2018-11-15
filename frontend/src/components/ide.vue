@@ -5,6 +5,11 @@
 	-moz-osx-font-smoothing: grayscale;
 	text-align: center;
 	color: #2c3e50;
+  z-index: 1 !important;
+}
+
+.navbar {
+  z-index: 10;
 }
 
 .console-output {
@@ -280,28 +285,29 @@ body {
           ></v-select>
         </v-layout>
         <v-layout align-end justify-center row>
+          <v-btn
+            dark
+            color="red"
+            @click="drawerOpen = false; showBugReport = true"
+            target="_blank"
+          >Bug / Feature</v-btn>
+        </v-layout>
+        <v-layout align-end justify-center row>
+          <v-btn
+            dark
+            flat
+            color="white"
+            href="https://github.com/harryt04/minizinc-web"
+            target="_blank"
+          ><v-icon class="mx-3">fab fa-github</v-icon></i>View Source On Github</v-btn>
+          <v-spacer></v-spacer>
+        </v-layout>
+        <v-layout align-end justify-center row>
           <div>Version 1.0.1</div>
         </v-layout>
-        <v-layout align-end justify-center row>
-          <v-btn
-            dark
-            color="red"
-            @click="drawerOpen = false; showBugReport = true"
-            target="_blank"
-          >Report a Bug</v-btn>
-        </v-layout>
-        <v-layout align-end justify-center row>
-          <v-btn
-            dark
-            color="red"
-            @click="drawerOpen = false; showBugReport = true"
-            target="_blank"
-          >Request Feature</v-btn>
-        </v-layout>
       </v-navigation-drawer>
-      <v-toolbar color="red" fixed app>
+      <v-toolbar color="red" fixed app class="navbar">
         <v-toolbar-side-icon @click.stop="drawerOpen = !drawerOpen"></v-toolbar-side-icon>
-        <v-icon class="mx-3">fab fa-youtube</v-icon>
         <v-toolbar-title class="mr-5 align-center">
           <span
             class="title"
@@ -366,7 +372,7 @@ body {
                       </v-flex>
                     </v-layout>
                     <v-card-actions>
-                      <v-btn color="error" @click="showShareProject=false">Done</v-btn>
+                      <v-btn color="error" @click="addCollaborator(); showShareProject=false">Done</v-btn>
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
@@ -389,6 +395,7 @@ body {
                     <v-flex xs5>
                       <v-text-field
                         class="inputs"
+                        color="white"
                         label="Flags"
                         placeholder="--solver Gecode"
                         v-model="flags"
@@ -447,7 +454,7 @@ body {
       return {
         drawerOpen: false,
         theme: 'vibrant_ink',
-        flags: '--solver Gecode',
+        flags: '--solver Gecode -a',
         // filesToSend: 'model.mzn data.dzn',
         showShareProject: false,
         consoleOutput: '',
@@ -542,10 +549,13 @@ body {
         this.$set(this.deleteFileColors, index, color)
       },
       addCollaborator() {
-        let copy = {...this.selectedProject}
-        copy.collaborators.push(this.newCollaboratorEmail)
-        this.$store.dispatch('updateProject', copy)
-        this.newCollaboratorEmail = ''
+        var validateEmailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if (validateEmailRegEx.test(String(this.newCollaboratorEmail).toLowerCase())) {
+          let copy = {...this.selectedProject}
+          copy.collaborators.push(this.newCollaboratorEmail)
+          this.$store.dispatch('updateProject', copy)
+          this.newCollaboratorEmail = ''
+        }
       },
       removeCollaborator(index) {
         let copy = {...this.selectedProject}
@@ -714,9 +724,7 @@ body {
           .then(res => {
 
             if(!res.data.error) {
-              let response = res.data.message.replace(/-/g, '');
-              response = response.replace(/=/g, '');
-              self.consoleOutput = response;
+              self.consoleOutput = res.data.message;
               this.awaitingScriptResponse = false
             }
             else {
