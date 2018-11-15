@@ -135,7 +135,7 @@ body {
       <v-navigation-drawer v-model="drawerOpen" clipped app disable-resize-watcher>
         <v-list>
           <v-subheader class="sidebar-header">Projects
-            <v-btn fab fixed right dark small color="red" @click="showNewProject = !showNewProject">
+            <v-btn fab fixed right dark small color="red" @click="showNewFile = false; showNewProject = !showNewProject">
               <v-icon dark>add</v-icon>
             </v-btn>
           </v-subheader>
@@ -148,6 +148,7 @@ body {
                 v-model="newProject"
                 autofocus
                 dark
+                color="white"
               ></v-text-field>
             </v-flex>
           </v-layout>
@@ -208,7 +209,7 @@ body {
           <v-subheader style="text-align: left;" v-if="projectsExist" class="files-header">
             Files
             in "{{selectedProject.name}}"
-            <v-btn fab fixed right dark small color="red" @click="showNewFile = !showNewFile">
+            <v-btn fab fixed right dark small color="red" @click="showNewProject = false; showNewFile = !showNewFile">
               <v-icon dark>add</v-icon>
             </v-btn>
           </v-subheader>
@@ -219,6 +220,7 @@ body {
                 v-if="showNewFile"
                 @keyup.enter="createFile"
                 v-model="newFile"
+                color="white"
                 autofocus
                 dark
               ></v-text-field>
@@ -299,7 +301,7 @@ body {
             color="white"
             href="https://github.com/harryt04/minizinc-web"
             target="_blank"
-          ><v-icon class="mx-3">fab fa-github</v-icon></i>View Source On Github</v-btn>
+          ><v-icon class="mx-3">fab fa-github</v-icon>View Source On Github</v-btn>
           <v-spacer></v-spacer>
         </v-layout>
         <v-layout align-end justify-center row>
@@ -563,7 +565,7 @@ body {
         this.$store.dispatch('updateProject', copy)
       },
       createProject() {
-        this.showNewProject = false
+        this.showNewFile = false
         const newProject = {
           name: this.newProject,
           owner: this.currentUser.email,
@@ -592,6 +594,8 @@ body {
         this.theme = theme
       },
       switchFile(file, index, ) {
+        this.showNewProject = false
+        this.showNewFile = false
         this.loading = true
         this.$store.dispatch('updateFileIndex', index)
       },
@@ -640,6 +644,8 @@ body {
         this.$store.dispatch('deleteProject', project.id)
       },
       switchProject(project, index) {
+        this.showNewProject = false
+        this.showNewFile = false
         this.loading = true
         this.$store.dispatch('updateProjectIndex', index)
         this.$store.dispatch('updateFileIndex', 0)
