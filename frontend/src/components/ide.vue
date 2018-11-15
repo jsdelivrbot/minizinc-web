@@ -69,7 +69,7 @@ body {
 
 .selected {
 	/* margin-top: 15px; */
-  background-color: rgb(88, 88, 88);
+  background-color: rgb(110, 110, 110);
 }
 
 .code-text {
