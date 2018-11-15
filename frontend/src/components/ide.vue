@@ -113,6 +113,12 @@ body {
 	margin: 0 !important;
 }
 
+.quit-button {
+	padding: 0 !important;
+	margin: 0!important;
+  margin-left: 15px !important;
+}
+
 .add-collaborator {
 	margin-left: 15px;
 }
@@ -422,7 +428,9 @@ body {
                 </v-flex>
               </v-layout>
               <v-layout>
-                <v-btn left @click="sendScript()" color="error" class="solve-button">Solve</v-btn>
+                <v-btn left @click="sendScript()" :disabled="awaitingScriptResponse" color="error" class="solve-button">Solve</v-btn>
+                <v-btn left @click="sendSigTerm()" :disabled="!awaitingScriptResponse" color="error" class="quit-button">Quit</v-btn>
+
               </v-layout>
               <v-progress-circular
                 center
@@ -540,7 +548,7 @@ body {
         showBugReport: false,
         mode: 'ruby',
         filesToSend: [],
-        selectedFilesToSend: []
+        selectedFilesToSend: [],
       };
     },
     components: {
@@ -740,6 +748,23 @@ body {
               self.consoleOutput = res.data.message;
               this.awaitingScriptResponse = false
             }
+          })
+      },
+      sendSigTerm() {
+        let url
+        const self = this
+        if (window.location.href === 'http://localhost:8080/#/') {
+          url = 'http://localhost:30001/api/kill-last'
+        } else {
+          url = '/api/kill-last'
+        }
+
+        axios
+          .post(url, {})
+          .then(res => {
+            console.log('res: ', res);
+            self.consoleOutput += res.data.message;
+            this.awaitingScriptResponse = false
           })
       },
       loadAllThemes() {
