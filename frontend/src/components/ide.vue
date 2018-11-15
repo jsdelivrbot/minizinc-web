@@ -67,8 +67,9 @@ body {
   /* padding-top: 5px !important; */
 }
 
-.inputs-container {
+.selected {
 	/* margin-top: 15px; */
+  background-color: rgb(88, 88, 88);
 }
 
 .code-text {
@@ -157,6 +158,7 @@ body {
               v-for="(project, index) in projects"
               :key="project.id"
               @click="switchProject(project, index)"
+              v-bind:class="{ 'selected': selectedProject.id === project.id }"
             >
               <v-list-tile-title v-if="!editingProject[index]" v-text="project.name"></v-list-tile-title>
               <span
@@ -232,6 +234,7 @@ body {
               :key="file.id"
               class="clickable"
               @click="switchFile(file, index)"
+              v-bind:class="{ 'selected': selectedFile.id === file.id }"
             >
               <v-list-tile-title v-if="!editingFile[index]" v-text="file.name"></v-list-tile-title>
               <v-text-field
