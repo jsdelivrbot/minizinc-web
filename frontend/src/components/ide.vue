@@ -5,11 +5,11 @@
 	-moz-osx-font-smoothing: grayscale;
 	text-align: center;
 	color: #2c3e50;
-  z-index: 1 !important;
+	z-index: 1 !important;
 }
 
 .navbar {
-  z-index: 10;
+	z-index: 10;
 }
 
 .console-output {
@@ -58,18 +58,18 @@ body {
 .inputs {
 	margin-left: 10px;
 	width: 90%;
-  margin-top: 15px !important;
+	margin-top: 15px !important;
 	font-family: Consolas, monaco, monospace;
 }
 
 .files-selector {
-  margin-top: 0;
-  /* padding-top: 5px !important; */
+	margin-top: 0;
+	/* padding-top: 5px !important; */
 }
 
 .selected {
 	/* margin-top: 15px; */
-  background-color: rgb(110, 110, 110);
+	background-color: rgb(110, 110, 110);
 }
 
 .code-text {
@@ -115,8 +115,8 @@ body {
 
 .quit-button {
 	padding: 0 !important;
-	margin: 0!important;
-  margin-left: 15px !important;
+	margin: 0 !important;
+	margin-left: 15px !important;
 }
 
 .add-collaborator {
@@ -142,7 +142,15 @@ body {
       <v-navigation-drawer v-model="drawerOpen" clipped app disable-resize-watcher>
         <v-list>
           <v-subheader class="sidebar-header">Projects
-            <v-btn fab fixed right dark small color="red" @click="showNewFile = false; showNewProject = !showNewProject">
+            <v-btn
+              fab
+              fixed
+              right
+              dark
+              small
+              color="red"
+              @click="showNewFile = false; showNewProject = !showNewProject"
+            >
               <v-icon dark>add</v-icon>
             </v-btn>
           </v-subheader>
@@ -166,11 +174,11 @@ body {
               @click="switchProject(project, index)"
               v-bind:class="{ 'selected': selectedProject.id === project.id }"
             >
-              <v-list-tile-title v-if="!editingProject[index]" v-text="project.name"></v-list-tile-title>
+            <v-list-tile-title v-if="!editingProject[index]" v-text="project.name"></v-list-tile-title>
               <span
                 class="owner-text"
                 v-if="currentUser.email !== project.owner"
-                v-text="project.owner"
+                v-text="collaborators[project.owner]"
               ></span>
               <v-text-field
                 autoselect
@@ -217,7 +225,15 @@ body {
           <v-subheader style="text-align: left;" v-if="projectsExist" class="files-header">
             Files
             in "{{selectedProject.name}}"
-            <v-btn fab fixed right dark small color="red" @click="showNewProject = false; showNewFile = !showNewFile">
+            <v-btn
+              fab
+              fixed
+              right
+              dark
+              small
+              color="red"
+              @click="showNewProject = false; showNewFile = !showNewFile"
+            >
               <v-icon dark>add</v-icon>
             </v-btn>
           </v-subheader>
@@ -310,7 +326,9 @@ body {
             color="white"
             href="https://github.com/harryt04/minizinc-web"
             target="_blank"
-          ><v-icon class="mx-3">fab fa-github</v-icon>View Source On Github</v-btn>
+          >
+            <v-icon class="mx-3">fab fa-github</v-icon>View Source On Github
+          </v-btn>
           <v-spacer></v-spacer>
         </v-layout>
         <v-layout align-end justify-center row>
@@ -428,9 +446,20 @@ body {
                 </v-flex>
               </v-layout>
               <v-layout>
-                <v-btn left @click="sendScript()" :disabled="awaitingScriptResponse" color="error" class="solve-button">Solve</v-btn>
-                <v-btn left @click="sendSigTerm()" :disabled="!awaitingScriptResponse" color="error" class="quit-button">Quit</v-btn>
-
+                <v-btn
+                  left
+                  @click="sendScript()"
+                  :disabled="awaitingScriptResponse"
+                  color="error"
+                  class="solve-button"
+                >Solve</v-btn>
+                <v-btn
+                  left
+                  @click="sendSigTerm()"
+                  :disabled="!awaitingScriptResponse"
+                  color="error"
+                  class="quit-button"
+                >Quit</v-btn>
               </v-layout>
               <v-progress-circular
                 center
@@ -549,6 +578,7 @@ body {
         mode: 'ruby',
         filesToSend: [],
         selectedFilesToSend: [],
+        collaborators: []
       };
     },
     components: {
@@ -826,6 +856,19 @@ body {
           .toString(36)
           .substr(2, 20)
         )
+      },
+      getCollaborator(email) {
+        getCollection('users')
+          .where('email', '==', email)
+          .get()
+          .then(snapshot => {
+            snapshot.forEach(user => {
+              this.collaborators[email] = user.data().displayName
+            })
+          })
+          .catch(err => {
+            console.log('err: ', err)
+          })
       }
     },
     watch: {
@@ -837,8 +880,8 @@ body {
       const self = this;
       firebase.auth().onAuthStateChanged(user => {
         if (user) {
-          self.$store.dispatch('signIn', user)
           self.currentUser = user
+          self.$store.dispatch('signIn', user)
         }
       });
       this.loadAllThemes()
@@ -846,7 +889,7 @@ body {
     computed: {
       projects() {
         const numProjects = this.$store.getters.projects.length
-        if (numProjects !== this.projectCount) {
+        if (numProjects !== this.projectCount && !this.loading) {
           this.projectCount = numProjects
           this.editingProject = []
           this.deleteFileColors = []
@@ -856,6 +899,13 @@ body {
             this.deleteFileColors.push('white')
             this.editFileColors.push('white')
           }
+          this.collaborators = []
+          this.$store.getters.projects.forEach(project => {
+            if (project.owner !== this.currentUser.email) {
+              this.getCollaborator(project.owner)
+            }
+          })
+          console.log('this.collaborators: ', this.collaborators);
         }
         return this.$store.getters.projects;
       },
@@ -910,15 +960,21 @@ body {
     mounted() {
       const self = this
       window.addEventListener("keydown", e => {
-
         if ((e.ctrlKey || e.metaKey) && (e.which == 83 || e.which == 13)) {
           event.preventDefault()
           self.sendScript()
         }
-
-
       });
     }
   };
+
+  function getCollection(collection) {
+  const db = firebase.firestore()
+  const settings = {
+    timestampsInSnapshots: true
+  }
+  db.settings(settings)
+  return db.collection(collection)
+}
 
 </script>
