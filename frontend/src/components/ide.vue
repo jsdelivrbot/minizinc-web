@@ -343,6 +343,9 @@ body {
           >MiniZinc Web IDE - {{selectedFile ? selectedFile.name : 'Please create a file to get started'}}</span>
         </v-toolbar-title>
         <v-spacer></v-spacer>
+        <v-toolbar-items class="hidden-sm-and-down">
+          <v-btn @click="showRightPanel = !showRightPanel" flat>Toggle Right Panel</v-btn>
+        </v-toolbar-items>
         <v-avatar size="45" color="grey lighten-4">
           <img :src="currentUser.photoURL" alt="avatar">
         </v-avatar>
@@ -354,7 +357,7 @@ body {
       <v-content>
         <v-container fluid fill-height class="remove-margin">
           <v-layout align-space-around>
-            <v-flex xs8 fill-height fill-width>
+            <v-flex xs12 fill-height fill-width v-if="!showRightPanel">
               <editor
                 id="editor"
                 v-model="codeEntered"
@@ -417,7 +420,75 @@ body {
                 </v-dialog>
               </div>
             </v-flex>
-            <v-flex xs4 fill-height fill-width>
+
+            <v-flex xs8 fill-height fill-width v-if="showRightPanel">
+              <editor
+                id="editor"
+                v-model="codeEntered"
+                :lang="mode"
+                v-bind:theme="theme"
+                @change="saveSelectedFile"
+              ></editor>
+              <div v-if="projectsExist">
+                <v-dialog light v-model="showShareProject" max-width="500px">
+                  <v-card>
+                    <v-card-title class="share-project-title">Share "{{selectedProject.name}}"</v-card-title>
+                    <v-list>
+                      <div v-if="selectedProject.collaborators.length > 0">
+                        <v-flex xs9>
+                          <v-list-tile
+                            v-for="(collaborator, index) in selectedProject.collaborators"
+                            :key="collaborator"
+                          >
+                            <v-list-tile-title>{{collaborator}}</v-list-tile-title>
+                            <v-btn fab flat small v-on:click="removeCollaborator(index)">
+                              <v-icon dark>delete</v-icon>
+                            </v-btn>
+                          </v-list-tile>
+                        </v-flex>
+                      </div>
+                      <v-list-tile>
+                        <v-list-tile-title
+                          v-if="selectedProject.collaborators.length <= 0"
+                        >No collaborators invited. Invited one!</v-list-tile-title>
+                      </v-list-tile>
+                    </v-list>
+                    <v-layout>
+                      <v-flex xs10>
+                        <v-text-field
+                          class="add-collaborator"
+                          max-width="300px"
+                          label="New Collaborator's Email address"
+                          @keyup.enter="addCollaborator"
+                          v-model="newCollaboratorEmail"
+                          autofocus
+                          light
+                          :rules="[rules.required, rules.email]"
+                        ></v-text-field>
+                      </v-flex>
+                    </v-layout>
+                    <v-card-actions>
+                      <v-btn color="error" @click="addCollaborator(); showShareProject=false">Done</v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+                <v-dialog light v-model="showBugReport" max-width="640">
+                  <iframe
+                    src="https://docs.google.com/forms/d/e/1FAIpQLSet0L6_CBQA0nnH-E2YYiyMbiSDCsEt-pAXEcILY0Bb8C7E-Q/viewform?embedded=true"
+                    width="640"
+                    height="700"
+                    frameborder="0"
+                    marginheight="0"
+                    marginwidth="0"
+                  >Loading...</iframe>
+                </v-dialog>
+              </div>
+            </v-flex>
+
+
+            <!-- Right Panel -->
+
+            <v-flex xs4 fill-height fill-width v-show="showRightPanel">
               <v-layout>
                 <v-flex xs12>
                   <v-layout align-center justify-center row class="inputs-container">
@@ -488,7 +559,6 @@ body {
   import firebase from 'firebase'
   // import axiosBase from '../../utils/requestBase';
   import axios from 'axios'
-
 
   export default {
     name: 'ide',
@@ -578,7 +648,8 @@ body {
         mode: 'ruby',
         filesToSend: [],
         selectedFilesToSend: [],
-        collaborators: []
+        collaborators: [],
+        showRightPanel: true
       };
     },
     components: {
@@ -799,6 +870,7 @@ body {
       },
       loadAllThemes() {
         require('brace/mode/ruby');
+        require('brace/mode/mzn');
         require('brace/mode/json');
         require('brace/mode/javascript');
         require('brace/mode/text');
@@ -940,7 +1012,7 @@ body {
           switch (currentFileType) {
             case "mzn":
             case "dzn":
-              this.mode = 'ruby'
+              this.mode = 'mzn'
               break
             case "json":
               this.mode = 'json'
