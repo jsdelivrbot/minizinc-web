@@ -332,7 +332,7 @@ body {
           <v-spacer></v-spacer>
         </v-layout>
         <v-layout align-end justify-center row>
-          <div>Version 1.0.1</div>
+          <div>Version 1.0.2</div>
         </v-layout>
       </v-navigation-drawer>
       <v-toolbar color="red" fixed app class="navbar">
