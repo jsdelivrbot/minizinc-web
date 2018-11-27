@@ -9,7 +9,7 @@
 }
 
 .navbar {
-	z-index: 10;
+	z-index: 10 !important;
 }
 
 .console-output {
