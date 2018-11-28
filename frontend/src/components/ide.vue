@@ -307,7 +307,7 @@ body {
             label="Select Theme"
             outline
             v-on:change="selectTheme"
-            value="vibrant_ink"
+            :value="theme"
             class="theme-selector"
           ></v-select>
         </v-layout>
@@ -332,7 +332,7 @@ body {
           <v-spacer></v-spacer>
         </v-layout>
         <v-layout align-end justify-center row>
-          <div>Version 1.0.2</div>
+          <div>Version 1.1.0</div>
         </v-layout>
       </v-navigation-drawer>
       <v-toolbar color="red" fixed app class="navbar">
@@ -430,12 +430,13 @@ body {
                 @change="saveSelectedFile"
               ></editor>
               <div v-if="projectsExist">
-                <v-dialog light v-model="showShareProject" max-width="500px">
+                <v-dialog light v-model="showShareProject" max-width="700px">
+                  <v-layout align-space-around justify-center row fill-height>
                   <v-card>
                     <v-card-title class="share-project-title">Share "{{selectedProject.name}}"</v-card-title>
                     <v-list>
                       <div v-if="selectedProject.collaborators.length > 0">
-                        <v-flex xs9>
+                        <v-flex xs12>
                           <v-list-tile
                             v-for="(collaborator, index) in selectedProject.collaborators"
                             :key="collaborator"
@@ -458,7 +459,7 @@ body {
                         <v-text-field
                           class="add-collaborator"
                           max-width="300px"
-                          label="New Collaborator's Email address"
+                          label="New Collaborator's Email"
                           @keyup.enter="addCollaborator"
                           v-model="newCollaboratorEmail"
                           autofocus
@@ -471,6 +472,7 @@ body {
                       <v-btn color="error" @click="addCollaborator(); showShareProject=false">Done</v-btn>
                     </v-card-actions>
                   </v-card>
+                  </v-layout>
                 </v-dialog>
                 <v-dialog light v-model="showBugReport" max-width="640">
                   <iframe
@@ -563,7 +565,7 @@ export default {
   data: function() {
     return {
       drawerOpen: false,
-      theme: "vibrant_ink",
+      theme: "tomorrow_night_bright",
       flags: "--solver Gecode -a",
       // filesToSend: 'model.mzn data.dzn',
       showShareProject: false,
