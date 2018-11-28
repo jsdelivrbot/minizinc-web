@@ -64,19 +64,19 @@ router.post('/kill-last', (req, res) => {
 		data,
 		stderr,
 	) {
-		if (!err) {
-			console.log('Killed the last operation:\n\n', data);
-			res.send({
-				message: `Killed the last operation:\n\n${data}`,
-				error: false
-			});
-		} else {
-			console.log('error: ', stderr);
-			res.send({
-				message: `Killed the last operation:\n\n${data}`,
-				error: true
-			});
-		}
+		err = ifNullEmptyStringify(err)
+		data = ifNullEmptyStringify(data)
+		stderr = ifNullEmptyStringify(stderr)
+		console.log('Killed the last operation\n\n', data);
+		res.send({
+			message: `Killed the last operation\n\n${data}\n\n${stderr}\n\n${err}`,
+			error: false
+		});
 	});
 })
+
+function ifNullEmptyStringify(item) {
+	if (item === null || item === undefined) return ""
+	return item
+}
 module.exports = router;
