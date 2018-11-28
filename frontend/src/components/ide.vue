@@ -365,60 +365,6 @@ body {
                 v-bind:theme="theme"
                 @change="saveSelectedFile"
               ></editor>
-              <div v-if="projectsExist">
-                <v-dialog light v-model="showShareProject" max-width="500px">
-                  <v-card>
-                    <v-card-title class="share-project-title">Share "{{selectedProject.name}}"</v-card-title>
-                    <v-list>
-                      <div v-if="selectedProject.collaborators.length > 0">
-                        <v-flex xs9>
-                          <v-list-tile
-                            v-for="(collaborator, index) in selectedProject.collaborators"
-                            :key="collaborator"
-                          >
-                            <v-list-tile-title>{{collaborator}}</v-list-tile-title>
-                            <v-btn fab flat small v-on:click="removeCollaborator(index)">
-                              <v-icon dark>delete</v-icon>
-                            </v-btn>
-                          </v-list-tile>
-                        </v-flex>
-                      </div>
-                      <v-list-tile>
-                        <v-list-tile-title
-                          v-if="selectedProject.collaborators.length <= 0"
-                        >No collaborators invited. Invited one!</v-list-tile-title>
-                      </v-list-tile>
-                    </v-list>
-                    <v-layout>
-                      <v-flex xs10>
-                        <v-text-field
-                          class="add-collaborator"
-                          max-width="300px"
-                          label="New Collaborator's Email address"
-                          @keyup.enter="addCollaborator"
-                          v-model="newCollaboratorEmail"
-                          autofocus
-                          light
-                          :rules="[rules.required, rules.email]"
-                        ></v-text-field>
-                      </v-flex>
-                    </v-layout>
-                    <v-card-actions>
-                      <v-btn color="error" @click="addCollaborator(); showShareProject=false">Done</v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-dialog>
-                <v-dialog light v-model="showBugReport" max-width="640">
-                  <iframe
-                    src="https://docs.google.com/forms/d/e/1FAIpQLSet0L6_CBQA0nnH-E2YYiyMbiSDCsEt-pAXEcILY0Bb8C7E-Q/viewform?embedded=true"
-                    width="640"
-                    height="700"
-                    frameborder="0"
-                    marginheight="0"
-                    marginwidth="0"
-                  >Loading...</iframe>
-                </v-dialog>
-              </div>
             </v-flex>
 
             <v-flex xs8 fill-height fill-width v-if="showRightPanel">
@@ -429,62 +375,6 @@ body {
                 v-bind:theme="theme"
                 @change="saveSelectedFile"
               ></editor>
-              <div v-if="projectsExist">
-                <v-dialog light v-model="showShareProject" max-width="700px">
-                  <v-layout align-space-around justify-center row fill-height>
-                  <v-card>
-                    <v-card-title class="share-project-title">Share "{{selectedProject.name}}"</v-card-title>
-                    <v-list>
-                      <div v-if="selectedProject.collaborators.length > 0">
-                        <v-flex xs12>
-                          <v-list-tile
-                            v-for="(collaborator, index) in selectedProject.collaborators"
-                            :key="collaborator"
-                          >
-                            <v-list-tile-title>{{collaborator}}</v-list-tile-title>
-                            <v-btn fab flat small v-on:click="removeCollaborator(index)">
-                              <v-icon dark>delete</v-icon>
-                            </v-btn>
-                          </v-list-tile>
-                        </v-flex>
-                      </div>
-                      <v-list-tile>
-                        <v-list-tile-title
-                          v-if="selectedProject.collaborators.length <= 0"
-                        >No collaborators invited. Invited one!</v-list-tile-title>
-                      </v-list-tile>
-                    </v-list>
-                    <v-layout>
-                      <v-flex xs10>
-                        <v-text-field
-                          class="add-collaborator"
-                          max-width="300px"
-                          label="New Collaborator's Email"
-                          @keyup.enter="addCollaborator"
-                          v-model="newCollaboratorEmail"
-                          autofocus
-                          light
-                          :rules="[rules.required, rules.email]"
-                        ></v-text-field>
-                      </v-flex>
-                    </v-layout>
-                    <v-card-actions>
-                      <v-btn color="error" @click="addCollaborator(); showShareProject=false">Done</v-btn>
-                    </v-card-actions>
-                  </v-card>
-                  </v-layout>
-                </v-dialog>
-                <v-dialog light v-model="showBugReport" max-width="640">
-                  <iframe
-                    src="https://docs.google.com/forms/d/e/1FAIpQLSet0L6_CBQA0nnH-E2YYiyMbiSDCsEt-pAXEcILY0Bb8C7E-Q/viewform?embedded=true"
-                    width="640"
-                    height="700"
-                    frameborder="0"
-                    marginheight="0"
-                    marginwidth="0"
-                  >Loading...</iframe>
-                </v-dialog>
-              </div>
             </v-flex>
 
             <!-- Right Panel -->
@@ -544,6 +434,65 @@ body {
               <div class="left-align console-output">{{consoleOutput}}</div>
             </v-flex>
           </v-layout>
+
+          <!-- add collaborator modal -->
+          <div v-if="projectsExist">
+            <v-layout align-center justify-center row fill-height>
+              <v-dialog light v-model="showShareProject" max-width="400px">
+                <v-card>
+                  <v-card-title class="share-project-title">Share "{{selectedProject.name}}"</v-card-title>
+                  <v-list>
+                    <div v-if="selectedProject.collaborators.length > 0">
+                      <v-flex xs12>
+                        <v-list-tile
+                          v-for="(collaborator, index) in selectedProject.collaborators"
+                          :key="collaborator"
+                        >
+                          <v-list-tile-title>{{collaborator}}</v-list-tile-title>
+                          <v-btn fab flat small v-on:click="removeCollaborator(index)">
+                            <v-icon dark>delete</v-icon>
+                          </v-btn>
+                        </v-list-tile>
+                      </v-flex>
+                    </div>
+                    <v-list-tile>
+                      <v-list-tile-title
+                        v-if="selectedProject.collaborators.length <= 0"
+                      >No collaborators invited. Invited one!</v-list-tile-title>
+                    </v-list-tile>
+                  </v-list>
+                  <v-layout>
+                    <v-flex xs10>
+                      <v-text-field
+                        class="add-collaborator"
+                        max-width="300px"
+                        label="New Collaborator's Email"
+                        @keyup.enter="addCollaborator"
+                        v-model="newCollaboratorEmail"
+                        autofocus
+                        light
+                        :rules="[rules.required, rules.email]"
+                      ></v-text-field>
+                    </v-flex>
+                  </v-layout>
+                  <v-card-actions>
+                    <v-btn color="error" @click="addCollaborator(); showShareProject=false">Done</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-layout>
+
+            <v-dialog light v-model="showBugReport" max-width="640">
+              <iframe
+                src="https://docs.google.com/forms/d/e/1FAIpQLSet0L6_CBQA0nnH-E2YYiyMbiSDCsEt-pAXEcILY0Bb8C7E-Q/viewform?embedded=true"
+                width="640"
+                height="700"
+                frameborder="0"
+                marginheight="0"
+                marginwidth="0"
+              >Loading...</iframe>
+            </v-dialog>
+          </div>
         </v-container>
       </v-content>
       <v-snackbar v-model="snackbar" color="error" :timeout="6000" bottom>
