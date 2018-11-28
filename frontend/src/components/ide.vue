@@ -421,6 +421,13 @@ body {
                   color="error"
                   class="quit-button"
                 >Quit</v-btn>
+                <v-btn
+                  left
+                  @click="consoleOutput = ''"
+                  :disabled="consoleOutput === ''"
+                  color="error"
+                  class="quit-button"
+                >Clear</v-btn>
               </v-layout>
               <v-progress-circular
                 center
