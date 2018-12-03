@@ -601,7 +601,7 @@ export default {
       editProjColor: "white",
       shareProjColor: "white",
       showBugReport: false,
-      mode: "ruby",
+      mode: "mzn",
       filesToSend: [],
       selectedFilesToSend: [],
       collaborators: [],
@@ -821,7 +821,6 @@ export default {
       });
     },
     loadAllThemes() {
-      require("brace/mode/ruby");
       require("brace/mode/mzn");
       require("brace/mode/json");
       require("brace/mode/javascript");
